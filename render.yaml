@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: fashion-photos
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm run start:server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: API_URL
+        value: https://fashion-photos.onrender.com
+      - key: CLIENT_URL
+        value: https://fashion-photos.onrender.com
+      - key: VITE_API_URL
+        value: /api
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: AUTH_COOKIE_MAX_AGE_DAYS
+        value: 7
+      - key: BCRYPT_SALT_ROUNDS
+        value: 12
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: SMTP_SECURE
+        value: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: MFA_ENCRYPTION_KEY
+        generateValue: true
+      - key: MONGO_URI
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false

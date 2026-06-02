@@ -1,3 +1,7 @@
+import { existsSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
@@ -21,7 +25,22 @@ import { testimonialRouter } from './routes/testimonial.routes'
 
 export const app = express()
 
-app.use(helmet())
+const clientDistPath = fileURLToPath(new URL('../../dist', import.meta.url))
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        fontSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'", 'https:'],
+      },
+    },
+  }),
+)
 app.use(
   cors({
     origin: env.CLIENT_URL,
@@ -45,6 +64,13 @@ app.use('/api/services', serviceRouter)
 app.use('/api/testimonials', testimonialRouter)
 app.use('/api/blogs', blogRouter)
 app.use('/api/admin', dashboardRouter)
+
+if (env.NODE_ENV === 'production' && existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath))
+  app.get(/^(?!\/api(?:\/|$)).*/, (_req, res) => {
+    res.sendFile(path.join(clientDistPath, 'index.html'))
+  })
+}
 
 app.use(notFoundHandler)
 app.use(errorHandler)
