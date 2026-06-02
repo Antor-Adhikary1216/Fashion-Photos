@@ -13,10 +13,6 @@ services:
         value: production
       - key: PORT
         value: 10000
-      - key: API_URL
-        value: https://fashion-photos.onrender.com
-      - key: CLIENT_URL
-        value: https://fashion-photos.onrender.com
       - key: VITE_API_URL
         value: /api
       - key: JWT_EXPIRES_IN

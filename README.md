@@ -38,8 +38,8 @@ server serves both `/api/*` and the built React app from `dist/`.
    - `EMAIL_FROM`
    - `EMAIL_USER`
    - `EMAIL_PASS`
-4. Keep `API_URL`, `CLIENT_URL`, and the Render service URL aligned. The
-   default blueprint assumes `https://fashion-photos.onrender.com`.
+4. Leave `API_URL` and `CLIENT_URL` unset unless you add a custom domain. The
+   server uses Render's `RENDER_EXTERNAL_URL` automatically.
 5. In MongoDB Atlas Network Access, allow Render to connect. For the free Render
    plan, use `0.0.0.0/0` or move to a plan/static outbound IP setup.
 

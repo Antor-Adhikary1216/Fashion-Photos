@@ -10,6 +10,8 @@ const optionalString = z.preprocess(
   z.string().optional(),
 )
 
+const renderExternalUrl = emptyStringToUndefined(process.env.RENDER_EXTERNAL_URL)
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
@@ -19,11 +21,11 @@ const envSchema = z.object({
     z.coerce.number().int().positive().default(5000),
   ),
   API_URL: z.preprocess(
-    emptyStringToUndefined,
+    (value) => emptyStringToUndefined(value ?? renderExternalUrl),
     z.string().url().default('http://localhost:5000'),
   ),
   CLIENT_URL: z.preprocess(
-    emptyStringToUndefined,
+    (value) => emptyStringToUndefined(value ?? renderExternalUrl),
     z.string().url().default('http://localhost:5173'),
   ),
   MONGO_URI: z.preprocess(
