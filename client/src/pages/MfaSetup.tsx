@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react'
 
 import { api, getErrorMessage } from '@/api/http'
+import { AuthLayout } from '@/components/auth/AuthLayout'
 import { useAuth } from '@/context/AuthContext'
-import { AuthLayout } from '@/pages/AuthLayout'
 
 export function MfaSetup() {
   const { refreshUser } = useAuth()

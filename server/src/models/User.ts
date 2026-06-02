@@ -1,4 +1,4 @@
-import { Schema, model, models, type HydratedDocument, type Model } from 'mongoose'
+import mongoose, { Schema, model, type HydratedDocument, type Model } from 'mongoose'
 
 export type UserRole = 'user' | 'admin'
 
@@ -19,6 +19,9 @@ export interface User {
   isEmailVerified: boolean
   emailVerificationTokenHash?: string
   emailVerificationExpiresAt?: Date
+  emailVerificationCodeHash?: string
+  emailVerificationCodeExpiresAt?: Date
+  emailVerificationCodeAttempts: number
   passwordResetTokenHash?: string
   passwordResetExpiresAt?: Date
   refreshTokenHash?: string
@@ -99,6 +102,19 @@ const userSchema = new Schema<User>(
       type: Date,
       select: false,
     },
+    emailVerificationCodeHash: {
+      type: String,
+      select: false,
+    },
+    emailVerificationCodeExpiresAt: {
+      type: Date,
+      select: false,
+    },
+    emailVerificationCodeAttempts: {
+      type: Number,
+      default: 0,
+      select: false,
+    },
     passwordResetTokenHash: {
       type: String,
       select: false,
@@ -129,10 +145,10 @@ const userSchema = new Schema<User>(
   },
 )
 
-userSchema.index({ email: 1 }, { unique: true })
 userSchema.index({ emailVerificationTokenHash: 1 }, { sparse: true })
+userSchema.index({ emailVerificationCodeHash: 1 }, { sparse: true })
 userSchema.index({ passwordResetTokenHash: 1 }, { sparse: true })
 
-export const UserModel = models.User
-  ? (models.User as Model<User>)
+export const UserModel = mongoose.models.User
+  ? (mongoose.models.User as Model<User>)
   : model<User>('User', userSchema)

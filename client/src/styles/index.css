@@ -70,6 +70,19 @@ select:focus {
   border-color: #c99a2e;
 }
 
+input::placeholder,
+textarea::placeholder {
+  color: #78716c;
+}
+
+.auth-input-with-icon {
+  padding-left: 3rem;
+}
+
+.password-input {
+  padding-right: 3rem;
+}
+
 select option {
   color: #111;
 }

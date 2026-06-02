@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
+import { FiArrowLeft } from 'react-icons/fi'
 
 import { api, getErrorMessage } from '@/api/http'
-import { AuthLayout } from '@/pages/AuthLayout'
+import { AuthLayout } from '@/components/auth/AuthLayout'
 
 export function ForgotPassword() {
   const [message, setMessage] = useState<string | null>(null)
@@ -29,6 +31,13 @@ export function ForgotPassword() {
 
   return (
     <AuthLayout eyebrow="Password Help" title="Reset your password.">
+      <Link
+        to="/login"
+        className="mb-5 inline-flex items-center gap-2 text-sm text-stone-400 transition hover:text-gold-300"
+      >
+        <FiArrowLeft aria-hidden="true" />
+        Back to login
+      </Link>
       <form onSubmit={handleSubmit} className="grid gap-4">
         <input name="email" type="email" placeholder="Email" required />
         {message ? <p className="text-sm text-gold-200">{message}</p> : null}

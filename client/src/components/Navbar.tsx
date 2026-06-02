@@ -17,7 +17,20 @@ const navItems = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const { user, logout } = useAuth()
+  const userInitials = user ? getUserInitials(user.name) : ''
+
+  async function handleLogout() {
+    setIsLoggingOut(true)
+
+    try {
+      await logout()
+      setIsOpen(false)
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-white/10 bg-black/65 backdrop-blur-xl">
@@ -28,7 +41,7 @@ export function Navbar() {
           </span>
           <span>
             <span className="block font-serif text-xl text-white">
-              FrameStory
+              Fashion-Photos
             </span>
             <span className="block text-[0.65rem] uppercase tracking-[0.35em] text-stone-400">
               Photography
@@ -68,16 +81,23 @@ export function Navbar() {
             </AnimatedNavLink>
           ) : null}
           {user ? (
-            <div className="mt-3 flex items-center gap-3 border-t border-white/10 pt-3 lg:mt-0 lg:border-0 lg:pt-0">
-              <Link to="/account" className="text-sm text-stone-300">
-                {user.name}
+            <div className="mt-3 flex items-center gap-2 border-t border-white/10 pt-3 lg:mt-0 lg:border-0 lg:pt-0">
+              <Link
+                to="/account"
+                onClick={() => setIsOpen(false)}
+                aria-label={`${user.name} account`}
+                title={user.name}
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-gold-300/35 bg-gold-300/15 text-xs font-bold uppercase text-gold-100 shadow-[0_0_22px_rgba(231,191,92,0.18)] transition hover:border-gold-300 hover:bg-gold-300/25"
+              >
+                {userInitials}
               </Link>
               <button
                 type="button"
-                onClick={() => void logout()}
-                className="rounded-full border border-white/15 px-4 py-2 text-sm text-white hover:border-gold-300"
+                onClick={() => void handleLogout()}
+                disabled={isLoggingOut}
+                className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:border-gold-300 hover:text-gold-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Logout
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
               </button>
             </div>
           ) : (
@@ -92,6 +112,17 @@ export function Navbar() {
       </nav>
     </header>
   )
+}
+
+function getUserInitials(name: string) {
+  const initials = name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+
+  return initials || 'U'
 }
 
 function AnimatedNavLink({

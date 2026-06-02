@@ -1,4 +1,4 @@
-import { Schema, model, models, type HydratedDocument, type Model } from 'mongoose'
+import mongoose, { Schema, model, type HydratedDocument, type Model } from 'mongoose'
 
 export interface Blog {
   title: string
@@ -54,9 +54,8 @@ const blogSchema = new Schema<Blog>(
   },
 )
 
-blogSchema.index({ slug: 1 }, { unique: true })
 blogSchema.index({ category: 1 })
 
-export const BlogModel = models.Blog
-  ? (models.Blog as Model<Blog>)
+export const BlogModel = mongoose.models.Blog
+  ? (mongoose.models.Blog as Model<Blog>)
   : model<Blog>('Blog', blogSchema)

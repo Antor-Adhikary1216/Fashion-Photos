@@ -1,9 +1,11 @@
 import type { Request } from 'express'
-import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 
 import { UserModel } from '../models/User'
 import { AppError } from './errors'
 import { getAccessTokenFromRequest, verifyAccessToken } from './tokens'
+
+const { JsonWebTokenError, TokenExpiredError } = jwt
 
 export async function getAuthenticatedUser(req: Request) {
   const token = getAccessTokenFromRequest(req)

@@ -29,7 +29,7 @@ const envSchema = z.object({
   MONGO_URI: z.preprocess(
     (value) =>
       emptyStringToUndefined(value ?? process.env.MONGODB_URI),
-    z.string().min(1).default('mongodb://127.0.0.1:27017/framestory'),
+    z.string().min(1).default('mongodb://127.0.0.1:27017/fashion_photos'),
   ),
   MONGODB_URI: z.preprocess(
     emptyStringToUndefined,
@@ -67,7 +67,7 @@ const envSchema = z.object({
   ),
   EMAIL_FROM: z.preprocess(
     emptyStringToUndefined,
-    z.string().min(1).default('FrameStory <no-reply@example.com>'),
+    z.string().min(1).default('Fashion-Photos <no-reply@example.com>'),
   ),
   EMAIL_HOST: optionalString,
   EMAIL_PORT: z.preprocess(

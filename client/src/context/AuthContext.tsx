@@ -12,14 +12,38 @@ import { api, getStoredAccessToken, setStoredAccessToken } from '@/api/http'
 import type { User } from '@/types'
 
 type LoginResult =
-  | { requiresMfa: true; mfaToken: string; message: string }
-  | { requiresMfa: false; user: User; accessToken: string; message: string }
+  | {
+      requiresEmailVerification: true
+      email: string
+      message: string
+      devVerificationCode?: string
+    }
+  | {
+      requiresEmailVerification?: false
+      requiresMfa: true
+      mfaToken: string
+      message: string
+    }
+  | {
+      requiresEmailVerification?: false
+      requiresMfa: false
+      user: User
+      accessToken: string
+      message: string
+    }
+
+type RegisterResult = {
+  requiresEmailVerification: true
+  email: string
+  message: string
+  devVerificationCode?: string
+}
 
 type AuthContextValue = {
   user: User | null
   accessToken: string | null
   isLoading: boolean
-  register: (payload: RegisterPayload) => Promise<unknown>
+  register: (payload: RegisterPayload) => Promise<RegisterResult>
   login: (payload: LoginPayload) => Promise<LoginResult>
   verifyMfaLogin: (payload: MfaLoginPayload) => Promise<void>
   logout: () => Promise<void>
@@ -97,7 +121,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async login(payload) {
         const response = await api.post<LoginResult>('/auth/login', payload)
 
-        if (!response.data.requiresMfa) {
+        if (
+          !response.data.requiresEmailVerification &&
+          !response.data.requiresMfa
+        ) {
           storeSession(response.data.accessToken, response.data.user)
         }
 

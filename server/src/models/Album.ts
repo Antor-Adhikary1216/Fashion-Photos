@@ -1,4 +1,4 @@
-import { Schema, model, models, type HydratedDocument, type Model } from 'mongoose'
+import mongoose, { Schema, model, type HydratedDocument, type Model } from 'mongoose'
 
 export interface Album {
   title: string
@@ -64,9 +64,8 @@ const albumSchema = new Schema<Album>(
   },
 )
 
-albumSchema.index({ slug: 1 }, { unique: true })
 albumSchema.index({ category: 1 })
 
-export const AlbumModel = models.Album
-  ? (models.Album as Model<Album>)
+export const AlbumModel = mongoose.models.Album
+  ? (mongoose.models.Album as Model<Album>)
   : model<Album>('Album', albumSchema)

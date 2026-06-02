@@ -1,4 +1,4 @@
-import { Schema, model, models, type HydratedDocument, type Model } from 'mongoose'
+import mongoose, { Schema, model, type HydratedDocument, type Model } from 'mongoose'
 
 export interface Service {
   title: string
@@ -53,6 +53,6 @@ const serviceSchema = new Schema<Service>(
   },
 )
 
-export const ServiceModel = models.Service
-  ? (models.Service as Model<Service>)
+export const ServiceModel = mongoose.models.Service
+  ? (mongoose.models.Service as Model<Service>)
   : model<Service>('Service', serviceSchema)

@@ -99,7 +99,7 @@ async function buildPhotoPayload<TSchema extends z.ZodType>(
   const payload = parseWithSchema(schema, req.body) as z.infer<typeof photoSchema>
 
   if (req.file) {
-    const upload = await uploadImageBuffer(req.file.buffer, 'framestory/photos')
+    const upload = await uploadImageBuffer(req.file.buffer, 'fashion-photos/photos')
     payload.imageUrl = upload.secure_url
     payload.publicId = upload.public_id
   }

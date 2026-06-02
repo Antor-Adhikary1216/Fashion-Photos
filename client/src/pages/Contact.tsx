@@ -40,7 +40,7 @@ export function Contact() {
       <PageHeader
         eyebrow="Booking"
         title="Tell us what you are planning."
-        copy="Share a few details and FrameStory will respond with availability, approach, and next steps."
+        copy="Share a few details and Fashion-Photos will respond with availability, approach, and next steps."
       />
       <section className="mx-auto grid max-w-7xl gap-10 px-5 pb-20 lg:grid-cols-[0.8fr_1.2fr]">
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8">

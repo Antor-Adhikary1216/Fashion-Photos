@@ -4,7 +4,7 @@ import { cloudinary, ensureCloudinaryConfigured } from '../config/cloudinary'
 
 export async function uploadImageBuffer(
   buffer: Buffer,
-  folder = 'framestory',
+  folder = 'fashion-photos',
 ) {
   ensureCloudinaryConfigured()
 

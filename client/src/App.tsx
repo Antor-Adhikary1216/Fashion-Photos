@@ -1,5 +1,4 @@
-import { Route, Routes, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { Route, Routes } from 'react-router-dom'
 
 import { AdminRoute } from '@/components/AdminRoute'
 import { Footer } from '@/components/Footer'
@@ -35,21 +34,23 @@ import { ManageServices } from '@/dashboard/ManageServices'
 import { ManageTestimonials } from '@/dashboard/ManageTestimonials'
 
 export function App() {
-  const location = useLocation()
-
   return (
-    <div className="min-h-screen bg-black text-stone-100">
+    <div className="flex min-h-screen flex-col bg-black text-stone-100">
       <Navbar />
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={location.pathname}
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.22, ease: 'easeOut' }}
-        >
-          <Routes location={location}>
-            <Route path="/" element={<Home />} />
+      <div className="flex-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route
+            path="/resend-verification"
+            element={<ResendVerification />}
+          />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/mfa-verify" element={<MfaVerify />} />
+          <Route element={<ProtectedRoute />}>
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/albums" element={<Albums />} />
             <Route path="/albums/:slug" element={<AlbumDetails />} />
@@ -58,36 +59,24 @@ export function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogDetails />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route
-              path="/resend-verification"
-              element={<ResendVerification />}
-            />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/mfa-verify" element={<MfaVerify />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/account" element={<AccountSettings />} />
-              <Route path="/mfa-setup" element={<MfaSetup />} />
-              <Route element={<AdminRoute />}>
-                <Route path="/dashboard" element={<DashboardLayout />}>
-                  <Route index element={<DashboardHome />} />
-                  <Route path="photos/new" element={<AddPhoto />} />
-                  <Route path="photos" element={<ManagePhotos />} />
-                  <Route path="albums/new" element={<AddAlbum />} />
-                  <Route path="albums" element={<ManageAlbums />} />
-                  <Route path="bookings" element={<ManageBookings />} />
-                  <Route path="services" element={<ManageServices />} />
-                  <Route path="testimonials" element={<ManageTestimonials />} />
-                  <Route path="blogs" element={<ManageBlogs />} />
-                </Route>
+            <Route path="/account" element={<AccountSettings />} />
+            <Route path="/mfa-setup" element={<MfaSetup />} />
+            <Route element={<AdminRoute />}>
+              <Route path="/dashboard" element={<DashboardLayout />}>
+                <Route index element={<DashboardHome />} />
+                <Route path="photos/new" element={<AddPhoto />} />
+                <Route path="photos" element={<ManagePhotos />} />
+                <Route path="albums/new" element={<AddAlbum />} />
+                <Route path="albums" element={<ManageAlbums />} />
+                <Route path="bookings" element={<ManageBookings />} />
+                <Route path="services" element={<ManageServices />} />
+                <Route path="testimonials" element={<ManageTestimonials />} />
+                <Route path="blogs" element={<ManageBlogs />} />
               </Route>
             </Route>
-          </Routes>
-        </motion.div>
-      </AnimatePresence>
+          </Route>
+        </Routes>
+      </div>
       <Footer />
     </div>
   )

@@ -1,9 +1,11 @@
 import type { NextFunction, Request, Response } from 'express'
-import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 
 import { UserModel, type UserDocument } from '../models/User'
 import { AppError } from '../utils/errors'
 import { getAccessTokenFromRequest, verifyAccessToken } from '../utils/tokens'
+
+const { JsonWebTokenError, TokenExpiredError } = jwt
 
 type AuthLocals = {
   user: UserDocument

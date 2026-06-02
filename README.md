@@ -1,4 +1,4 @@
-# FrameStory
+# Fashion-Photos
 
 A full-stack cinematic photography portfolio built with React, Vite, Tailwind CSS, Express, MongoDB, JWT auth, email verification, optional TOTP MFA, and Cloudinary uploads.
 

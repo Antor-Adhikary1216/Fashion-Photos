@@ -20,9 +20,21 @@ export function useApiResource<T>(
         const response = await api.get(path)
         const nextData = response.data?.[responseKey] as T | undefined
 
-        if (isMounted && nextData) {
-          setData(nextData)
+        if (!isMounted) {
+          return
         }
+
+        if (Array.isArray(nextData) && nextData.length === 0) {
+          setData(fallback)
+          return
+        }
+
+        if (nextData) {
+          setData(nextData)
+          return
+        }
+
+        setData(fallback)
       } catch (resourceError) {
         if (isMounted) {
           setError(getErrorMessage(resourceError))

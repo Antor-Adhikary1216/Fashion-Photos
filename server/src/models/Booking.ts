@@ -1,4 +1,4 @@
-import { Schema, model, models, type HydratedDocument, type Model } from 'mongoose'
+import mongoose, { Schema, model, type HydratedDocument, type Model } from 'mongoose'
 
 export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled'
 
@@ -78,6 +78,6 @@ const bookingSchema = new Schema<Booking>(
 bookingSchema.index({ status: 1, createdAt: -1 })
 bookingSchema.index({ email: 1 })
 
-export const BookingModel = models.Booking
-  ? (models.Booking as Model<Booking>)
+export const BookingModel = mongoose.models.Booking
+  ? (mongoose.models.Booking as Model<Booking>)
   : model<Booking>('Booking', bookingSchema)

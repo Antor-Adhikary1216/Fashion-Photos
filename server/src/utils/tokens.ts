@@ -6,7 +6,7 @@ import jwt, { type JwtPayload, type SignOptions } from 'jsonwebtoken'
 import { env } from '../config/env'
 import { AppError } from './errors'
 
-export const REFRESH_COOKIE_NAME = 'framestory_refresh'
+export const REFRESH_COOKIE_NAME = 'fashion_photos_refresh'
 
 export type AccessTokenPayload = {
   sub: string

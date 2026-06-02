@@ -1,12 +1,15 @@
+import { randomInt } from 'node:crypto'
+
 import type { Request, Response } from 'express'
-import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import { z } from 'zod'
 
 import { env } from '../config/env'
-import { UserModel } from '../models/User'
+import { UserModel, type UserDocument } from '../models/User'
 import {
+  getPasswordResetUrl,
   sendPasswordResetEmail,
-  sendVerificationEmail,
+  sendVerificationCodeEmail,
 } from '../services/email.service'
 import { getRefreshCookieOptions } from '../utils/authCookie'
 import { AppError } from '../utils/errors'
@@ -19,7 +22,6 @@ import {
 import { comparePassword, hashPassword } from '../utils/password'
 import { serializeUser } from '../utils/serializeUser'
 import {
-  createEmailVerificationToken,
   createPasswordResetToken,
   createRefreshTokenValue,
   hashToken,
@@ -35,6 +37,11 @@ import {
   strongPasswordSchema,
   toLowerCase,
 } from '../utils/validation'
+
+const { JsonWebTokenError, TokenExpiredError } = jwt
+
+const emailVerificationCodeExpiresMs = 10 * 60 * 1000
+const maxEmailVerificationCodeAttempts = 5
 
 const registerSchema = z
   .object({
@@ -58,7 +65,8 @@ const emailSchema = z.object({
 })
 
 const verifyEmailSchema = z.object({
-  token: z.string().trim().min(32).max(256),
+  email: z.string().trim().email().transform(toLowerCase),
+  code: z.string().trim().regex(/^\d{6}$/, 'Verification code must be 6 digits'),
 })
 
 const resetPasswordSchema = z
@@ -100,53 +108,86 @@ export async function register(req: Request, res: Response) {
   }
 
   const passwordHash = await hashPassword(password)
-  const verificationToken = createEmailVerificationToken()
+  const verificationCode = createEmailVerificationCode()
 
   const user = await UserModel.create({
     name,
     email,
     passwordHash,
-    emailVerificationTokenHash: verificationToken.tokenHash,
-    emailVerificationExpiresAt: verificationToken.expiresAt,
+    emailVerificationCodeHash: verificationCode.codeHash,
+    emailVerificationCodeExpiresAt: verificationCode.expiresAt,
+    emailVerificationCodeAttempts: 0,
   })
 
-  const verificationEmail = await sendVerificationEmail({
-    to: user.email,
-    name: user.name,
-    token: verificationToken.token,
-  })
+  const verificationEmail = await sendEmailVerificationCode(
+    user,
+    verificationCode.code,
+    'registration',
+  )
 
   res.status(201).json({
     message: verificationEmail.delivered
-      ? 'Account created. Please verify your email before logging in.'
-      : 'Account created. Email delivery is not configured, so use the development verification URL.',
+      ? 'Account created. Enter the 6-digit code sent to your email.'
+      : env.NODE_ENV !== 'production'
+        ? 'Account created, but the verification email could not be sent. Use the development verification code below.'
+        : 'Account created, but the verification email could not be sent. Please request a new verification code later.',
+    requiresEmailVerification: true,
+    email: user.email,
     user: serializeUser(user),
-    devVerificationUrl:
+    devVerificationCode:
       env.NODE_ENV !== 'production' && !verificationEmail.delivered
-        ? verificationEmail.url
+        ? verificationCode.code
         : undefined,
   })
 }
 
 export async function verifyEmail(req: Request, res: Response) {
-  const tokenSource =
-    typeof req.query.token === 'string'
-      ? req.query
-      : typeof req.params.token === 'string'
-        ? req.params
-        : req.body
-  const { token } = parseWithSchema(verifyEmailSchema, tokenSource)
-
-  const user = await UserModel.findOne({
-    emailVerificationTokenHash: hashToken(token),
-    emailVerificationExpiresAt: { $gt: new Date() },
-  }).select('+emailVerificationTokenHash +emailVerificationExpiresAt')
+  const { email, code } = parseWithSchema(verifyEmailSchema, req.body)
+  const user = await UserModel.findOne({ email }).select(
+    '+emailVerificationCodeHash +emailVerificationCodeExpiresAt +emailVerificationCodeAttempts',
+  )
 
   if (!user) {
-    throw new AppError(400, 'Verification link is invalid or expired')
+    throw new AppError(400, 'Verification code is invalid or expired')
+  }
+
+  if (user.isEmailVerified) {
+    res.status(200).json({
+      message: 'Email verified successfully',
+      user: serializeUser(user),
+    })
+    return
+  }
+
+  if (
+    !user.emailVerificationCodeHash ||
+    !user.emailVerificationCodeExpiresAt ||
+    user.emailVerificationCodeExpiresAt <= new Date()
+  ) {
+    throw new AppError(400, 'Verification code is invalid or expired')
+  }
+
+  const attempts = user.emailVerificationCodeAttempts ?? 0
+
+  if (attempts >= maxEmailVerificationCodeAttempts) {
+    throw new AppError(429, 'Too many invalid attempts. Please request a new verification code.')
+  }
+
+  if (hashToken(code) !== user.emailVerificationCodeHash) {
+    user.emailVerificationCodeAttempts = attempts + 1
+    await user.save()
+
+    if (user.emailVerificationCodeAttempts >= maxEmailVerificationCodeAttempts) {
+      throw new AppError(429, 'Too many invalid attempts. Please request a new verification code.')
+    }
+
+    throw new AppError(400, 'Invalid verification code')
   }
 
   user.isEmailVerified = true
+  user.emailVerificationCodeHash = undefined
+  user.emailVerificationCodeExpiresAt = undefined
+  user.emailVerificationCodeAttempts = 0
   user.emailVerificationTokenHash = undefined
   user.emailVerificationExpiresAt = undefined
   await user.save()
@@ -160,7 +201,7 @@ export async function verifyEmail(req: Request, res: Response) {
 export async function resendVerificationEmail(req: Request, res: Response) {
   const { email } = parseWithSchema(emailSchema, req.body)
   const user = await UserModel.findOne({ email }).select(
-    '+emailVerificationTokenHash +emailVerificationExpiresAt',
+    '+emailVerificationCodeHash +emailVerificationCodeExpiresAt +emailVerificationCodeAttempts',
   )
 
   if (!user || user.isEmailVerified) {
@@ -171,31 +212,27 @@ export async function resendVerificationEmail(req: Request, res: Response) {
     return
   }
 
-  const verificationToken = createEmailVerificationToken()
-  user.emailVerificationTokenHash = verificationToken.tokenHash
-  user.emailVerificationExpiresAt = verificationToken.expiresAt
-  await user.save()
-
-  const verificationEmail = await sendVerificationEmail({
-    to: user.email,
-    name: user.name,
-    token: verificationToken.token,
-  })
+  const verificationEmail = await issueEmailVerificationCode(user, 'resend')
 
   res.status(200).json({
     message: verificationEmail.delivered
-      ? 'Verification email sent'
-      : 'Email delivery is not configured, so use the development verification URL.',
-    devVerificationUrl:
+      ? 'Verification code sent. Please enter it to verify your email.'
+      : env.NODE_ENV !== 'production'
+        ? 'Verification email could not be sent. Use the development verification code below.'
+        : 'Verification email could not be sent. Please try again later.',
+    email: user.email,
+    devVerificationCode:
       env.NODE_ENV !== 'production' && !verificationEmail.delivered
-        ? verificationEmail.url
+        ? verificationEmail.code
         : undefined,
   })
 }
 
 export async function login(req: Request, res: Response) {
   const { email, password } = parseWithSchema(loginSchema, req.body)
-  const user = await UserModel.findOne({ email }).select('+passwordHash')
+  const user = await UserModel.findOne({ email }).select(
+    '+passwordHash +emailVerificationCodeHash +emailVerificationCodeExpiresAt +emailVerificationCodeAttempts',
+  )
 
   if (!user) {
     throw new AppError(401, 'Invalid email or password')
@@ -208,7 +245,22 @@ export async function login(req: Request, res: Response) {
   }
 
   if (!user.isEmailVerified) {
-    throw new AppError(403, 'Please verify your email before logging in.')
+    const verificationEmail = await issueEmailVerificationCode(user, 'login')
+
+    res.status(200).json({
+      message: verificationEmail.delivered
+        ? 'Please enter the 6-digit code sent to your email before logging in.'
+        : env.NODE_ENV !== 'production'
+          ? 'Please verify your email. Use the development verification code below.'
+          : 'Please verify your email. We could not send a new code, so try again later.',
+      requiresEmailVerification: true,
+      email: user.email,
+      devVerificationCode:
+        env.NODE_ENV !== 'production' && !verificationEmail.delivered
+          ? verificationEmail.code
+          : undefined,
+    })
+    return
   }
 
   if (user.mfa.enabled) {
@@ -310,11 +362,20 @@ export async function forgotPassword(req: Request, res: Response) {
     user.passwordResetExpiresAt = resetToken.expiresAt
     await user.save()
 
-    const resetEmail = await sendPasswordResetEmail({
-      to: user.email,
-      name: user.name,
-      token: resetToken.token,
-    })
+    let resetEmail = {
+      delivered: false,
+      url: getPasswordResetUrl(resetToken.token),
+    }
+
+    try {
+      resetEmail = await sendPasswordResetEmail({
+        to: user.email,
+        name: user.name,
+        token: resetToken.token,
+      })
+    } catch (error) {
+      console.error('Password reset email delivery failed', error)
+    }
 
     res.status(200).json({
       message:
@@ -502,6 +563,57 @@ export async function disableMfa(req: Request, res: Response) {
     message: 'MFA disabled successfully',
     user: serializeUser(user),
   })
+}
+
+function createEmailVerificationCode() {
+  const code = randomInt(0, 1_000_000).toString().padStart(6, '0')
+
+  return {
+    code,
+    codeHash: hashToken(code),
+    expiresAt: new Date(Date.now() + emailVerificationCodeExpiresMs),
+  }
+}
+
+async function issueEmailVerificationCode(
+  user: UserDocument,
+  context: string,
+) {
+  const verificationCode = createEmailVerificationCode()
+  user.emailVerificationCodeHash = verificationCode.codeHash
+  user.emailVerificationCodeExpiresAt = verificationCode.expiresAt
+  user.emailVerificationCodeAttempts = 0
+  user.emailVerificationTokenHash = undefined
+  user.emailVerificationExpiresAt = undefined
+  await user.save()
+
+  return sendEmailVerificationCode(user, verificationCode.code, context)
+}
+
+async function sendEmailVerificationCode(
+  user: UserDocument,
+  code: string,
+  context: string,
+) {
+  try {
+    const verificationEmail = await sendVerificationCodeEmail({
+      to: user.email,
+      name: user.name,
+      code,
+    })
+
+    return {
+      delivered: verificationEmail.delivered,
+      code,
+    }
+  } catch (error) {
+    console.error(`Verification code delivery failed during ${context}`, error)
+
+    return {
+      delivered: false,
+      code,
+    }
+  }
 }
 
 async function issueSession(

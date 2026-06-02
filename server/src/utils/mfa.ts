@@ -6,7 +6,7 @@ import QRCode from 'qrcode'
 import { decryptSecret, encryptSecret } from './encryption'
 import { hashToken } from './tokens'
 
-const issuer = 'FrameStory'
+const issuer = 'Fashion-Photos'
 
 export async function createMfaSetup(email: string) {
   const secret = generateSecret()

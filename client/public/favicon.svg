@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Fashion-Photos favicon">
+  <rect width="64" height="64" rx="16" fill="#ffffff"/>
+  <g fill="none" stroke="#f73d75" stroke-linejoin="round">
+    <path d="M32 5 53 17v30L32 59 11 47V17Z" stroke-width="3.8"/>
+    <path d="M21 12h22l11 20-11 20H21L10 32Z" stroke-width="1.8" opacity=".82"/>
+  </g>
+  <text x="32" y="42" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="700" fill="#f73d75">F</text>
+</svg>

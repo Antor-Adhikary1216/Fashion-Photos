@@ -12,12 +12,19 @@ import {
   fallbackServices,
   fallbackTestimonials,
 } from '@/data/fallback'
+import { useAuth } from '@/context/AuthContext'
 import { useApiResource } from '@/hooks/useApiResource'
 import type { Album, Photo, Service, Testimonial } from '@/types'
+import { buildAuthPath } from '@/utils/redirect'
 
 const featuredFallbackPhotos = fallbackPhotos.filter((photo) => photo.isFeatured)
+const homeAlbumLimit = 3
+const homePhotoLimit = 3
+const homeServiceLimit = 3
+const homeTestimonialLimit = 2
 
 export function Home() {
+  const { user, isLoading } = useAuth()
   const { data: albums } = useApiResource<Album[]>(
     '/albums',
     'albums',
@@ -38,6 +45,16 @@ export function Home() {
     'testimonials',
     fallbackTestimonials,
   )
+  const canOpenProtectedLinks = isLoading || user
+  const galleryPath = canOpenProtectedLinks
+    ? '/gallery'
+    : buildAuthPath('/login', '/gallery')
+  const contactPath = canOpenProtectedLinks
+    ? '/contact'
+    : buildAuthPath('/login', '/contact')
+  const aboutPath = canOpenProtectedLinks
+    ? '/about'
+    : buildAuthPath('/login', '/about')
 
   return (
     <main>
@@ -58,7 +75,7 @@ export function Home() {
             Luxury Photography Portfolio
           </p>
           <h1 className="mt-6 font-serif text-6xl text-white md:text-8xl">
-            FrameStory
+            Fashion-Photos
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-stone-200">
             Cinematic photography for weddings, portraits, events, products,
@@ -66,13 +83,13 @@ export function Home() {
           </p>
           <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
             <Link
-              to="/gallery"
+              to={galleryPath}
               className="rounded-full bg-gold-400 px-7 py-3 font-semibold text-black"
             >
               View Portfolio
             </Link>
             <Link
-              to="/contact"
+              to={contactPath}
               className="rounded-full border border-white/25 px-7 py-3 font-semibold text-white"
             >
               Book a Shoot
@@ -86,7 +103,7 @@ export function Home() {
         title="Stories composed with depth, atmosphere, and intention."
       >
         <div className="grid gap-6 md:grid-cols-3">
-          {albums.slice(0, 3).map((album) => (
+          {albums.slice(0, homeAlbumLimit).map((album) => (
             <AlbumCard key={album._id} album={album} />
           ))}
         </div>
@@ -94,7 +111,7 @@ export function Home() {
 
       <Section eyebrow="Featured Photos" title="A few frames from the archive.">
         <div className="grid gap-5 md:grid-cols-3">
-          {photos.slice(0, 3).map((photo) => (
+          {photos.slice(0, homePhotoLimit).map((photo) => (
             <PhotoCard key={photo._id} photo={photo} />
           ))}
         </div>
@@ -102,7 +119,7 @@ export function Home() {
 
       <Section eyebrow="Services" title="Photography for personal and brand stories.">
         <div className="grid gap-6 lg:grid-cols-3">
-          {services.slice(0, 3).map((service) => (
+          {services.slice(0, homeServiceLimit).map((service) => (
             <ServiceCard key={service._id} service={service} />
           ))}
         </div>
@@ -122,12 +139,12 @@ export function Home() {
             Quiet direction, dramatic light, honest emotion.
           </h2>
           <p className="mt-6 text-lg leading-8 text-stone-400">
-            FrameStory blends documentary instinct with editorial polish. Every
+            Fashion-Photos blends documentary instinct with editorial polish. Every
             commission is planned with care, photographed with patience, and
             delivered as a gallery that feels timeless.
           </p>
           <Link
-            to="/about"
+            to={aboutPath}
             className="mt-8 w-fit rounded-full border border-gold-300 px-6 py-3 text-gold-200"
           >
             Meet the photographer
@@ -137,7 +154,7 @@ export function Home() {
 
       <Section eyebrow="Testimonials" title="Trusted by couples and creative teams.">
         <div className="grid gap-6 md:grid-cols-2">
-          {testimonials.slice(0, 2).map((testimonial) => (
+          {testimonials.slice(0, homeTestimonialLimit).map((testimonial) => (
             <TestimonialCard
               key={testimonial._id}
               testimonial={testimonial}
@@ -155,7 +172,7 @@ export function Home() {
             Let us shape your next story into a cinematic gallery.
           </h2>
           <Link
-            to="/contact"
+            to={contactPath}
             className="mt-8 inline-flex rounded-full bg-black px-7 py-3 font-semibold text-white"
           >
             Start a booking request

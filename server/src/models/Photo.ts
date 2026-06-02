@@ -1,4 +1,10 @@
-import { Schema, Types, model, models, type HydratedDocument, type Model } from 'mongoose'
+import mongoose, {
+  Schema,
+  Types,
+  model,
+  type HydratedDocument,
+  type Model,
+} from 'mongoose'
 
 export interface Photo {
   title: string
@@ -74,6 +80,6 @@ photoSchema.index({ category: 1 })
 photoSchema.index({ album: 1 })
 photoSchema.index({ isFeatured: 1 })
 
-export const PhotoModel = models.Photo
-  ? (models.Photo as Model<Photo>)
+export const PhotoModel = mongoose.models.Photo
+  ? (mongoose.models.Photo as Model<Photo>)
   : model<Photo>('Photo', photoSchema)

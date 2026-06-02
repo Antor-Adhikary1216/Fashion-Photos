@@ -1,4 +1,4 @@
-import { Schema, model, models, type HydratedDocument, type Model } from 'mongoose'
+import mongoose, { Schema, model, type HydratedDocument, type Model } from 'mongoose'
 
 export interface Testimonial {
   clientName: string
@@ -48,6 +48,6 @@ const testimonialSchema = new Schema<Testimonial>(
   },
 )
 
-export const TestimonialModel = models.Testimonial
-  ? (models.Testimonial as Model<Testimonial>)
+export const TestimonialModel = mongoose.models.Testimonial
+  ? (mongoose.models.Testimonial as Model<Testimonial>)
   : model<Testimonial>('Testimonial', testimonialSchema)

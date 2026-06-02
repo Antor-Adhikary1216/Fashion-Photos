@@ -7,12 +7,18 @@ import { api } from '@/api/http'
 import { fallbackAlbums, fallbackPhotos } from '@/data/fallback'
 import type { Album, Photo } from '@/types'
 
+function getFallbackAlbumPhotos(slug: string | undefined) {
+  const photos = fallbackPhotos.filter((photo) => photo.album === slug)
+
+  return photos.length > 0 ? photos : fallbackPhotos
+}
+
 export function AlbumDetails() {
   const { slug } = useParams()
   const [album, setAlbum] = useState<Album | null>(
     fallbackAlbums.find((item) => item.slug === slug) ?? fallbackAlbums[0],
   )
-  const [photos, setPhotos] = useState<Photo[]>(fallbackPhotos)
+  const [photos, setPhotos] = useState<Photo[]>(getFallbackAlbumPhotos(slug))
 
   useEffect(() => {
     async function loadAlbum() {
@@ -22,7 +28,7 @@ export function AlbumDetails() {
         setPhotos(response.data.photos)
       } catch {
         setAlbum(fallbackAlbums.find((item) => item.slug === slug) ?? null)
-        setPhotos(fallbackPhotos)
+        setPhotos(getFallbackAlbumPhotos(slug))
       }
     }
 
