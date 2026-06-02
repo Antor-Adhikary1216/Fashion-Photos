@@ -49,6 +49,33 @@ Render uses:
 - Start command: `npm run start:server`
 - Health check: `/api/health`
 
+## Railway Hosting
+
+This repo also includes `railway.json` for a one-service Railway deploy. The
+same Express server serves both `/api/*` and the built React app.
+
+1. In Railway, choose **New Project > Deploy from GitHub repo**.
+2. Select this repository and deploy the `main` branch.
+3. In the service Variables tab, add:
+   - `NODE_ENV=production`
+   - `VITE_API_URL=/api`
+   - `MONGO_URI`
+   - `JWT_SECRET`
+   - `JWT_REFRESH_SECRET`
+   - `MFA_ENCRYPTION_KEY`
+   - `EMAIL_FROM`
+   - `EMAIL_USER`
+   - `EMAIL_PASS`
+4. In the service Settings or Networking tab, generate a public domain.
+5. In MongoDB Atlas Network Access, allow Railway to connect. If you do not
+   have static outbound IPs, use `0.0.0.0/0`.
+
+Railway reads:
+
+- Build command: `npm ci --include=dev && npm run build`
+- Start command: `npm run start:server`
+- Health check: `/api/health`
+
 ## API Highlights
 
 - Auth: register, login, refresh, logout, me, verify email, resend verification, forgot/reset password, MFA setup/login/disable

@@ -10,7 +10,13 @@ const optionalString = z.preprocess(
   z.string().optional(),
 )
 
+const railwayExternalUrl = process.env.RAILWAY_PUBLIC_DOMAIN
+  ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+  : undefined
 const renderExternalUrl = emptyStringToUndefined(process.env.RENDER_EXTERNAL_URL)
+const hostingExternalUrl = emptyStringToUndefined(
+  renderExternalUrl ?? railwayExternalUrl,
+)
 
 const envSchema = z.object({
   NODE_ENV: z
@@ -21,11 +27,11 @@ const envSchema = z.object({
     z.coerce.number().int().positive().default(5000),
   ),
   API_URL: z.preprocess(
-    (value) => emptyStringToUndefined(value ?? renderExternalUrl),
+    (value) => emptyStringToUndefined(value ?? hostingExternalUrl),
     z.string().url().default('http://localhost:5000'),
   ),
   CLIENT_URL: z.preprocess(
-    (value) => emptyStringToUndefined(value ?? renderExternalUrl),
+    (value) => emptyStringToUndefined(value ?? hostingExternalUrl),
     z.string().url().default('http://localhost:5173'),
   ),
   MONGO_URI: z.preprocess(
