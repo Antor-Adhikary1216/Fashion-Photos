@@ -2,8 +2,10 @@ import { Route, Routes } from 'react-router-dom'
 
 import { AdminRoute } from '@/components/AdminRoute'
 import { Footer } from '@/components/Footer'
+import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Navbar } from '@/components/Navbar'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { useAuth } from '@/context/AuthContext'
 import { AccountSettings } from '@/pages/AccountSettings'
 import { AlbumDetails } from '@/pages/AlbumDetails'
 import { Albums } from '@/pages/Albums'
@@ -34,6 +36,23 @@ import { ManageServices } from '@/dashboard/ManageServices'
 import { ManageTestimonials } from '@/dashboard/ManageTestimonials'
 
 export function App() {
+  const { isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-black text-stone-100">
+        <div className="grid place-items-center gap-4">
+          <div className="rounded-full border border-gold-300/25 bg-gold-300/10 px-5 py-3 shadow-[0_0_34px_rgba(201,154,46,0.18)]">
+            <LoadingSpinner label="Loading website" />
+          </div>
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-stone-500">
+            Fashion-Photos
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-black text-stone-100">
       <Navbar />

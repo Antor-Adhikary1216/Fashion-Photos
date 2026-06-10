@@ -43,3 +43,5 @@ services:
         sync: false
       - key: EMAIL_PASS
         sync: false
+      - key: BOOKING_NOTIFICATION_EMAIL
+        sync: false

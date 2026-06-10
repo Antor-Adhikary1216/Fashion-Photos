@@ -84,6 +84,7 @@ const envSchema = z.object({
   ),
   EMAIL_USER: optionalString,
   EMAIL_PASS: optionalString,
+  BOOKING_NOTIFICATION_EMAIL: optionalString,
   SMTP_HOST: z.preprocess(
     (value) => emptyStringToUndefined(value ?? process.env.EMAIL_HOST),
     z.string().optional(),

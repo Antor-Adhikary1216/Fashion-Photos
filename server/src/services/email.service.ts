@@ -23,6 +23,28 @@ type CodeEmailResult = {
   delivered: boolean
 }
 
+type BookingEmailDetails = {
+  name: string
+  email: string
+  phone: string
+  serviceType: string
+  shootDate?: Date
+  location: string
+  budget: string
+  message: string
+  createdAt: Date
+}
+
+type BookingNotificationInput = {
+  to: string[]
+  booking: BookingEmailDetails
+}
+
+type BookingConfirmationInput = {
+  to: string
+  booking: BookingEmailDetails
+}
+
 let transporter: Transporter | null = null
 
 export async function sendVerificationEmail(
@@ -87,6 +109,65 @@ export async function sendPasswordResetCodeEmail(
     subject,
     text: buildPasswordResetCodeTextEmail(input.name, input.code),
     html: buildPasswordResetCodeHtmlEmail(input.name, input.code),
+  })
+
+  return {
+    delivered: true,
+  }
+}
+
+export async function sendBookingNotificationEmail({
+  to,
+  booking,
+}: BookingNotificationInput): Promise<CodeEmailResult> {
+  const mailer = getTransporter()
+  const subject = `New booking request from ${booking.name}`
+
+  if (!mailer) {
+    console.info(`${subject} for ${to.join(', ')}:`)
+    console.info(buildBookingNotificationTextEmail(booking))
+
+    return {
+      delivered: false,
+    }
+  }
+
+  await mailer.sendMail({
+    from: env.EMAIL_FROM,
+    to,
+    replyTo: booking.email,
+    subject,
+    text: buildBookingNotificationTextEmail(booking),
+    html: buildBookingNotificationHtmlEmail(booking),
+  })
+
+  return {
+    delivered: true,
+  }
+}
+
+export async function sendBookingConfirmationEmail({
+  to,
+  booking,
+}: BookingConfirmationInput): Promise<CodeEmailResult> {
+  const mailer = getTransporter()
+  const subject = 'We received your Fashion-Photos booking request'
+
+  if (!mailer) {
+    console.info(`${subject} for ${to}:`)
+    console.info(buildBookingConfirmationTextEmail(booking))
+
+    return {
+      delivered: false,
+    }
+  }
+
+  await mailer.sendMail({
+    from: env.EMAIL_FROM,
+    to,
+    subject,
+    text: buildBookingConfirmationTextEmail(booking),
+    html: buildBookingConfirmationHtmlEmail(booking),
   })
 
   return {
@@ -246,6 +327,127 @@ function buildPasswordResetCodeHtmlEmail(
       <p>This code expires in 10 minutes.</p>
     </div>
   `
+}
+
+function buildBookingNotificationTextEmail(
+  booking: BookingEmailDetails,
+) {
+  return `New booking request
+
+Name: ${booking.name}
+Email: ${booking.email}
+Phone: ${booking.phone}
+Service: ${booking.serviceType}
+Shoot date: ${formatBookingDate(booking.shootDate)}
+Location: ${booking.location}
+Budget: ${booking.budget || 'Not provided'}
+Submitted: ${formatBookingDate(booking.createdAt)}
+
+Message:
+${booking.message}`
+}
+
+function buildBookingNotificationHtmlEmail(
+  booking: BookingEmailDetails,
+) {
+  const rows = [
+    ['Name', booking.name],
+    ['Email', booking.email],
+    ['Phone', booking.phone],
+    ['Service', booking.serviceType],
+    ['Shoot date', formatBookingDate(booking.shootDate)],
+    ['Location', booking.location],
+    ['Budget', booking.budget || 'Not provided'],
+    ['Submitted', formatBookingDate(booking.createdAt)],
+  ]
+
+  return `
+    <div style="font-family: Arial, sans-serif; color: #1f1f1f;">
+      <h2 style="margin-bottom: 16px;">New booking request</h2>
+      <table style="border-collapse: collapse; width: 100%; max-width: 640px;">
+        <tbody>
+          ${rows
+            .map(
+              ([label, value]) => `
+                <tr>
+                  <th style="border: 1px solid #ddd; padding: 8px; text-align: left; width: 140px;">${escapeHtml(label)}</th>
+                  <td style="border: 1px solid #ddd; padding: 8px;">${escapeHtml(value)}</td>
+                </tr>
+              `,
+            )
+            .join('')}
+        </tbody>
+      </table>
+      <h3 style="margin-top: 20px;">Message</h3>
+      <p style="white-space: pre-line;">${escapeHtml(booking.message)}</p>
+    </div>
+  `
+}
+
+function buildBookingConfirmationTextEmail(booking: BookingEmailDetails) {
+  const greeting = booking.name ? `Hi ${booking.name},` : 'Hi,'
+
+  return `${greeting}
+
+Your Fashion-Photos booking request has been received.
+
+Booking details:
+Service: ${booking.serviceType}
+Shoot date: ${formatBookingDate(booking.shootDate)}
+Location: ${booking.location}
+Budget: ${booking.budget || 'Not provided'}
+Submitted: ${formatBookingDate(booking.createdAt)}
+
+We will review your request and reply with availability and next steps soon.
+
+Thank you,
+Fashion-Photos`
+}
+
+function buildBookingConfirmationHtmlEmail(booking: BookingEmailDetails) {
+  const greeting = booking.name ? `Hi ${escapeHtml(booking.name)},` : 'Hi,'
+  const rows = [
+    ['Service', booking.serviceType],
+    ['Shoot date', formatBookingDate(booking.shootDate)],
+    ['Location', booking.location],
+    ['Budget', booking.budget || 'Not provided'],
+    ['Submitted', formatBookingDate(booking.createdAt)],
+  ]
+
+  return `
+    <div style="font-family: Arial, sans-serif; color: #1f1f1f;">
+      <p>${greeting}</p>
+      <p>Your Fashion-Photos booking request has been received.</p>
+      <table style="border-collapse: collapse; width: 100%; max-width: 640px;">
+        <tbody>
+          ${rows
+            .map(
+              ([label, value]) => `
+                <tr>
+                  <th style="border: 1px solid #ddd; padding: 8px; text-align: left; width: 140px;">${escapeHtml(label)}</th>
+                  <td style="border: 1px solid #ddd; padding: 8px;">${escapeHtml(value)}</td>
+                </tr>
+              `,
+            )
+            .join('')}
+        </tbody>
+      </table>
+      <p style="margin-top: 20px;">We will review your request and reply with availability and next steps soon.</p>
+      <p>Thank you,<br />Fashion-Photos</p>
+    </div>
+  `
+}
+
+function formatBookingDate(value?: Date) {
+  if (!value) {
+    return 'Not provided'
+  }
+
+  return new Intl.DateTimeFormat('en', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'UTC',
+  }).format(value)
 }
 
 function escapeHtml(value: string) {
