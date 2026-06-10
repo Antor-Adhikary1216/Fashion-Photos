@@ -1,6 +1,7 @@
 import mongoose, { Schema, model, type HydratedDocument, type Model } from 'mongoose'
 
 export type UserRole = 'user' | 'admin'
+export type ProfileImageSource = 'gravatar' | 'upload'
 
 export interface UserMfa {
   enabled: boolean
@@ -22,8 +23,12 @@ export interface User {
   emailVerificationCodeHash?: string
   emailVerificationCodeExpiresAt?: Date
   emailVerificationCodeAttempts: number
-  passwordResetTokenHash?: string
-  passwordResetExpiresAt?: Date
+  passwordResetCodeHash?: string
+  passwordResetCodeExpiresAt?: Date
+  passwordResetCodeAttempts: number
+  profileImageUrl?: string
+  profileImagePublicId?: string
+  profileImageSource?: ProfileImageSource
   refreshTokenHash?: string
   mfa: UserMfa
   lastLoginAt?: Date
@@ -115,13 +120,29 @@ const userSchema = new Schema<User>(
       default: 0,
       select: false,
     },
-    passwordResetTokenHash: {
+    passwordResetCodeHash: {
       type: String,
       select: false,
     },
-    passwordResetExpiresAt: {
+    passwordResetCodeExpiresAt: {
       type: Date,
       select: false,
+    },
+    passwordResetCodeAttempts: {
+      type: Number,
+      default: 0,
+      select: false,
+    },
+    profileImageUrl: {
+      type: String,
+    },
+    profileImagePublicId: {
+      type: String,
+      select: false,
+    },
+    profileImageSource: {
+      type: String,
+      enum: ['gravatar', 'upload'],
     },
     refreshTokenHash: {
       type: String,
@@ -147,7 +168,7 @@ const userSchema = new Schema<User>(
 
 userSchema.index({ emailVerificationTokenHash: 1 }, { sparse: true })
 userSchema.index({ emailVerificationCodeHash: 1 }, { sparse: true })
-userSchema.index({ passwordResetTokenHash: 1 }, { sparse: true })
+userSchema.index({ passwordResetCodeHash: 1 }, { sparse: true })
 
 export const UserModel = mongoose.models.User
   ? (mongoose.models.User as Model<User>)

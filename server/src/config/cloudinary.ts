@@ -3,10 +3,20 @@ import { v2 as cloudinary } from 'cloudinary'
 import { env } from './env'
 import { AppError } from '../utils/errors'
 
+function hasCloudinaryValue(value?: string) {
+  const normalizedValue = value?.trim()
+
+  return Boolean(
+    normalizedValue &&
+      !normalizedValue.startsWith('your_') &&
+      normalizedValue !== 'replace-this',
+  )
+}
+
 const isConfigured = Boolean(
-  env.CLOUDINARY_CLOUD_NAME &&
-    env.CLOUDINARY_API_KEY &&
-    env.CLOUDINARY_API_SECRET,
+  hasCloudinaryValue(env.CLOUDINARY_CLOUD_NAME) &&
+    hasCloudinaryValue(env.CLOUDINARY_API_KEY) &&
+    hasCloudinaryValue(env.CLOUDINARY_API_SECRET),
 )
 
 if (isConfigured) {
@@ -19,7 +29,10 @@ if (isConfigured) {
 
 export function ensureCloudinaryConfigured() {
   if (!isConfigured) {
-    throw new AppError(500, 'Cloudinary is not configured')
+    throw new AppError(
+      500,
+      'Cloudinary is not configured. Add real Cloudinary credentials to enable image uploads.',
+    )
   }
 }
 

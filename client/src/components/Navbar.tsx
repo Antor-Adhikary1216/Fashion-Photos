@@ -87,9 +87,17 @@ export function Navbar() {
                 onClick={() => setIsOpen(false)}
                 aria-label={`${user.name} account`}
                 title={user.name}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-gold-300/35 bg-gold-300/15 text-xs font-bold uppercase text-gold-100 shadow-[0_0_22px_rgba(231,191,92,0.18)] transition hover:border-gold-300 hover:bg-gold-300/25"
+                className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full border border-gold-300/35 bg-gold-300/15 text-xs font-bold uppercase text-gold-100 shadow-[0_0_22px_rgba(231,191,92,0.18)] transition hover:border-gold-300 hover:bg-gold-300/25"
               >
-                {userInitials}
+                {user.profileImageUrl ? (
+                  <img
+                    src={user.profileImageUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  userInitials
+                )}
               </Link>
               <button
                 type="button"

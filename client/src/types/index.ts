@@ -7,6 +7,8 @@ export type User = {
   role: UserRole
   isEmailVerified: boolean
   mfaEnabled: boolean
+  profileImageUrl: string | null
+  profileImageSource: 'gravatar' | 'upload' | null
   lastLoginAt?: string
   createdAt: string
   updatedAt: string

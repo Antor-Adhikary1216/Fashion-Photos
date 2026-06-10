@@ -22,10 +22,6 @@ export function createEmailVerificationToken() {
   return createExpiringToken(30 * 60 * 1000)
 }
 
-export function createPasswordResetToken() {
-  return createExpiringToken(30 * 60 * 1000)
-}
-
 export function createRefreshTokenValue() {
   return randomBytes(48).toString('hex')
 }

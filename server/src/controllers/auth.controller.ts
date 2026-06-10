@@ -7,8 +7,7 @@ import { z } from 'zod'
 import { env } from '../config/env'
 import { UserModel, type UserDocument } from '../models/User'
 import {
-  getPasswordResetUrl,
-  sendPasswordResetEmail,
+  sendPasswordResetCodeEmail,
   sendVerificationCodeEmail,
 } from '../services/email.service'
 import { getRefreshCookieOptions } from '../utils/authCookie'
@@ -20,9 +19,13 @@ import {
   verifyTotpCode,
 } from '../utils/mfa'
 import { comparePassword, hashPassword } from '../utils/password'
+import {
+  deleteCloudinaryImage,
+  uploadImageBuffer,
+} from '../utils/cloudinaryUpload'
+import { ensureDefaultProfileImage } from '../utils/profileImage'
 import { serializeUser } from '../utils/serializeUser'
 import {
-  createPasswordResetToken,
   createRefreshTokenValue,
   hashToken,
   REFRESH_COOKIE_NAME,
@@ -42,6 +45,8 @@ const { JsonWebTokenError, TokenExpiredError } = jwt
 
 const emailVerificationCodeExpiresMs = 10 * 60 * 1000
 const maxEmailVerificationCodeAttempts = 5
+const passwordResetCodeExpiresMs = 10 * 60 * 1000
+const maxPasswordResetCodeAttempts = 5
 
 const registerSchema = z
   .object({
@@ -64,14 +69,30 @@ const emailSchema = z.object({
   email: z.string().trim().email().transform(toLowerCase),
 })
 
+const updateProfileSchema = z.object({
+  name: z.preprocess(
+    (value) => (value === undefined ? undefined : value),
+    z.string().trim().min(1).max(80).optional(),
+  ),
+})
+
+const sixDigitCodeSchema = (label: string) =>
+  z.string().trim().regex(/^\d{6}$/, `${label} must be 6 digits`)
+
 const verifyEmailSchema = z.object({
   email: z.string().trim().email().transform(toLowerCase),
-  code: z.string().trim().regex(/^\d{6}$/, 'Verification code must be 6 digits'),
+  code: sixDigitCodeSchema('Verification code'),
+})
+
+const verifyPasswordResetCodeSchema = z.object({
+  email: z.string().trim().email().transform(toLowerCase),
+  code: sixDigitCodeSchema('Password reset code'),
 })
 
 const resetPasswordSchema = z
   .object({
-    token: z.string().trim().min(32).max(256),
+    email: z.string().trim().email().transform(toLowerCase),
+    code: sixDigitCodeSchema('Password reset code'),
     password: strongPasswordSchema,
     confirmPassword: z.string(),
   })
@@ -118,6 +139,7 @@ export async function register(req: Request, res: Response) {
     emailVerificationCodeExpiresAt: verificationCode.expiresAt,
     emailVerificationCodeAttempts: 0,
   })
+  await ensureDefaultProfileImage(user)
 
   const verificationEmail = await sendEmailVerificationCode(
     user,
@@ -244,6 +266,8 @@ export async function login(req: Request, res: Response) {
     throw new AppError(401, 'Invalid email or password')
   }
 
+  await ensureDefaultProfileImage(user)
+
   if (!user.isEmailVerified) {
     const verificationEmail = await issueEmailVerificationCode(user, 'login')
 
@@ -301,6 +325,8 @@ export async function refreshToken(req: Request, res: Response) {
       throw new AppError(401, 'Invalid refresh token')
     }
 
+    await ensureDefaultProfileImage(user)
+
     const mfaVerified = user.mfa.enabled
     const accessToken = await issueSession(res, user.id, mfaVerified)
 
@@ -345,7 +371,55 @@ export async function getMe(_req: Request, res: Response) {
     throw new AppError(401, 'Authentication required')
   }
 
+  await ensureDefaultProfileImage(user)
+
   res.status(200).json({
+    user: serializeUser(user),
+  })
+}
+
+export async function updateMe(req: Request, res: Response) {
+  const payload = parseWithSchema(updateProfileSchema, req.body)
+  const authUser = res.locals.user
+
+  if (!authUser) {
+    throw new AppError(401, 'Authentication required')
+  }
+
+  const user = await UserModel.findById(authUser.id).select(
+    '+profileImagePublicId',
+  )
+
+  if (!user) {
+    throw new AppError(401, 'Authentication required')
+  }
+
+  if (payload.name) {
+    user.name = payload.name
+  }
+
+  if (req.file) {
+    const previousPublicId =
+      user.profileImageSource === 'upload'
+        ? user.profileImagePublicId
+        : undefined
+    const upload = await uploadImageBuffer(
+      req.file.buffer,
+      `fashion-photos/profiles/${user.id}`,
+    )
+
+    user.profileImageUrl = upload.secure_url
+    user.profileImagePublicId = upload.public_id
+    user.profileImageSource = 'upload'
+    await user.save()
+    await deleteCloudinaryImage(previousPublicId)
+  } else {
+    await ensureDefaultProfileImage(user)
+    await user.save()
+  }
+
+  res.status(200).json({
+    message: 'Profile updated successfully',
     user: serializeUser(user),
   })
 }
@@ -353,60 +427,53 @@ export async function getMe(_req: Request, res: Response) {
 export async function forgotPassword(req: Request, res: Response) {
   const { email } = parseWithSchema(emailSchema, req.body)
   const user = await UserModel.findOne({ email }).select(
-    '+passwordResetTokenHash +passwordResetExpiresAt',
+    '+passwordResetCodeHash +passwordResetCodeExpiresAt +passwordResetCodeAttempts',
   )
 
   if (user) {
-    const resetToken = createPasswordResetToken()
-    user.passwordResetTokenHash = resetToken.tokenHash
-    user.passwordResetExpiresAt = resetToken.expiresAt
-    await user.save()
-
-    let resetEmail = {
-      delivered: false,
-      url: getPasswordResetUrl(resetToken.token),
-    }
-
-    try {
-      resetEmail = await sendPasswordResetEmail({
-        to: user.email,
-        name: user.name,
-        token: resetToken.token,
-      })
-    } catch (error) {
-      console.error('Password reset email delivery failed', error)
-    }
+    const resetEmail = await issuePasswordResetCode(user, 'forgot-password')
 
     res.status(200).json({
       message:
-        'If that email exists, password reset instructions have been sent.',
-      devResetUrl:
+        'If that email exists, a password reset code has been sent.',
+      devResetCode:
         env.NODE_ENV !== 'production' && !resetEmail.delivered
-          ? resetEmail.url
+          ? resetEmail.code
           : undefined,
     })
     return
   }
 
   res.status(200).json({
-    message: 'If that email exists, password reset instructions have been sent.',
+    message: 'If that email exists, a password reset code has been sent.',
+  })
+}
+
+export async function verifyPasswordResetCode(req: Request, res: Response) {
+  const { email, code } = parseWithSchema(
+    verifyPasswordResetCodeSchema,
+    req.body,
+  )
+
+  await getUserForPasswordResetCode(email, code)
+
+  res.status(200).json({
+    message: 'Code verified. Enter a new password.',
+    email,
   })
 }
 
 export async function resetPassword(req: Request, res: Response) {
-  const { token, password } = parseWithSchema(resetPasswordSchema, req.body)
-  const user = await UserModel.findOne({
-    passwordResetTokenHash: hashToken(token),
-    passwordResetExpiresAt: { $gt: new Date() },
-  }).select('+passwordResetTokenHash +passwordResetExpiresAt +passwordHash')
-
-  if (!user) {
-    throw new AppError(400, 'Password reset link is invalid or expired')
-  }
+  const { email, code, password } = parseWithSchema(
+    resetPasswordSchema,
+    req.body,
+  )
+  const user = await getUserForPasswordResetCode(email, code)
 
   user.passwordHash = await hashPassword(password)
-  user.passwordResetTokenHash = undefined
-  user.passwordResetExpiresAt = undefined
+  user.passwordResetCodeHash = undefined
+  user.passwordResetCodeExpiresAt = undefined
+  user.passwordResetCodeAttempts = 0
   user.refreshTokenHash = undefined
   await user.save()
 
@@ -478,6 +545,7 @@ export async function verifyLoginMfa(req: Request, res: Response) {
     throw new AppError(400, 'Invalid MFA code')
   }
 
+  await ensureDefaultProfileImage(user)
   user.mfa.lastVerifiedAt = new Date()
   user.lastLoginAt = new Date()
   const accessToken = await issueSession(res, user.id, true)
@@ -514,6 +582,7 @@ export async function verifyBackupCode(req: Request, res: Response) {
   }
 
   user.mfa.backupCodesHash = nextBackupCodes
+  await ensureDefaultProfileImage(user)
   user.mfa.lastVerifiedAt = new Date()
   user.lastLoginAt = new Date()
   const accessToken = await issueSession(res, user.id, true)
@@ -566,12 +635,20 @@ export async function disableMfa(req: Request, res: Response) {
 }
 
 function createEmailVerificationCode() {
+  return createSixDigitCode(emailVerificationCodeExpiresMs)
+}
+
+function createPasswordResetCode() {
+  return createSixDigitCode(passwordResetCodeExpiresMs)
+}
+
+function createSixDigitCode(durationMs: number) {
   const code = randomInt(0, 1_000_000).toString().padStart(6, '0')
 
   return {
     code,
     codeHash: hashToken(code),
-    expiresAt: new Date(Date.now() + emailVerificationCodeExpiresMs),
+    expiresAt: new Date(Date.now() + durationMs),
   }
 }
 
@@ -614,6 +691,85 @@ async function sendEmailVerificationCode(
       code,
     }
   }
+}
+
+async function issuePasswordResetCode(user: UserDocument, context: string) {
+  const resetCode = createPasswordResetCode()
+  user.passwordResetCodeHash = resetCode.codeHash
+  user.passwordResetCodeExpiresAt = resetCode.expiresAt
+  user.passwordResetCodeAttempts = 0
+  await user.save()
+
+  return sendPasswordResetCode(user, resetCode.code, context)
+}
+
+async function sendPasswordResetCode(
+  user: UserDocument,
+  code: string,
+  context: string,
+) {
+  try {
+    const resetEmail = await sendPasswordResetCodeEmail({
+      to: user.email,
+      name: user.name,
+      code,
+    })
+
+    return {
+      delivered: resetEmail.delivered,
+      code,
+    }
+  } catch (error) {
+    console.error(`Password reset code delivery failed during ${context}`, error)
+
+    return {
+      delivered: false,
+      code,
+    }
+  }
+}
+
+async function getUserForPasswordResetCode(email: string, code: string) {
+  const user = await UserModel.findOne({ email }).select(
+    '+passwordHash +passwordResetCodeHash +passwordResetCodeExpiresAt +passwordResetCodeAttempts +refreshTokenHash',
+  )
+
+  if (!user) {
+    throw new AppError(400, 'Password reset code is invalid or expired')
+  }
+
+  if (
+    !user.passwordResetCodeHash ||
+    !user.passwordResetCodeExpiresAt ||
+    user.passwordResetCodeExpiresAt <= new Date()
+  ) {
+    throw new AppError(400, 'Password reset code is invalid or expired')
+  }
+
+  const attempts = user.passwordResetCodeAttempts ?? 0
+
+  if (attempts >= maxPasswordResetCodeAttempts) {
+    throw new AppError(
+      429,
+      'Too many invalid attempts. Please request a new password reset code.',
+    )
+  }
+
+  if (hashToken(code) !== user.passwordResetCodeHash) {
+    user.passwordResetCodeAttempts = attempts + 1
+    await user.save()
+
+    if (user.passwordResetCodeAttempts >= maxPasswordResetCodeAttempts) {
+      throw new AppError(
+        429,
+        'Too many invalid attempts. Please request a new password reset code.',
+      )
+    }
+
+    throw new AppError(400, 'Invalid password reset code')
+  }
+
+  return user
 }
 
 async function issueSession(

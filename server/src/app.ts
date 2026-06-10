@@ -26,6 +26,27 @@ import { testimonialRouter } from './routes/testimonial.routes'
 export const app = express()
 
 const clientDistPath = fileURLToPath(new URL('../../dist', import.meta.url))
+const developmentClientOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+]
+const allowedCorsOrigins = new Set(
+  env.NODE_ENV === 'production'
+    ? [env.CLIENT_URL]
+    : [env.CLIENT_URL, ...developmentClientOrigins],
+)
+
+const corsOrigin = (
+  origin: string | undefined,
+  callback: (error: Error | null, origin?: boolean | string) => void,
+) => {
+  if (!origin) {
+    callback(null, true)
+    return
+  }
+
+  callback(null, allowedCorsOrigins.has(origin) ? origin : false)
+}
 
 app.use(
   helmet({
@@ -43,7 +64,7 @@ app.use(
 )
 app.use(
   cors({
-    origin: env.CLIENT_URL,
+    origin: corsOrigin,
     credentials: true,
   }),
 )

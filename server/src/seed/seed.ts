@@ -116,6 +116,50 @@ const albums = [
     location: 'Hyderabad, India',
     isPrivate: false,
   },
+  {
+    title: 'Heritage Frames',
+    slug: 'heritage-frames',
+    category: 'Wedding',
+    coverImage:
+      'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1400&q=80',
+    description: 'Ceremony portraits framed by architecture, fabric, and ritual.',
+    date: new Date('2026-08-21'),
+    location: 'Jodhpur, India',
+    isPrivate: false,
+  },
+  {
+    title: 'Studio Botanica',
+    slug: 'studio-botanica',
+    category: 'Product',
+    coverImage:
+      'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1400&q=80',
+    description: 'Skincare and fragrance products styled with living texture.',
+    date: new Date('2026-09-02'),
+    location: 'Ahmedabad, India',
+    isPrivate: false,
+  },
+  {
+    title: 'Festival Lights',
+    slug: 'festival-lights',
+    category: 'Event',
+    coverImage:
+      'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1400&q=80',
+    description: 'Night event coverage with movement, light, and celebration.',
+    date: new Date('2026-09-14'),
+    location: 'Kochi, India',
+    isPrivate: false,
+  },
+  {
+    title: 'Mountain Retreat',
+    slug: 'mountain-retreat',
+    category: 'Travel',
+    coverImage:
+      'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=80',
+    description: 'Slow travel photography for hillside stays and quiet escapes.',
+    date: new Date('2026-09-28'),
+    location: 'Manali, India',
+    isPrivate: false,
+  },
 ]
 
 const photos = [
@@ -126,7 +170,22 @@ const photos = [
     category: 'Wedding',
     albumSlug: 'golden-vows',
     location: 'Udaipur',
+    camera: 'Canon EOS R5',
+    lens: 'RF 50mm f/1.2',
+    description: 'A quiet getting-ready portrait in warm window light.',
     isFeatured: true,
+  },
+  {
+    title: 'Marigold Exit',
+    imageUrl:
+      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1000&q=80',
+    category: 'Wedding',
+    albumSlug: 'golden-vows',
+    location: 'Udaipur',
+    camera: 'Canon EOS R5',
+    lens: 'RF 85mm f/1.2',
+    description: 'A celebratory ceremony exit under petals and afternoon sun.',
+    isFeatured: false,
   },
   {
     title: 'Velvet Frame',
@@ -135,7 +194,22 @@ const photos = [
     category: 'Portrait',
     albumSlug: 'noir-portraits',
     location: 'Mumbai',
+    camera: 'Sony A7R V',
+    lens: '85mm f/1.4',
+    description: 'A low-key studio portrait with soft directional light.',
     isFeatured: true,
+  },
+  {
+    title: 'Silver Profile',
+    imageUrl:
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1000&q=80',
+    category: 'Portrait',
+    albumSlug: 'noir-portraits',
+    location: 'Mumbai',
+    camera: 'Sony A7R V',
+    lens: '50mm f/1.4',
+    description: 'Clean portrait styling with a luminous grayscale mood.',
+    isFeatured: false,
   },
   {
     title: 'Editorial Gold',
@@ -144,7 +218,22 @@ const photos = [
     category: 'Fashion',
     albumSlug: 'runway-after-dark',
     location: 'Delhi',
+    camera: 'Nikon Z8',
+    lens: '70-200mm f/2.8',
+    description: 'A bold runway-inspired frame with metallic styling.',
     isFeatured: true,
+  },
+  {
+    title: 'City Hemline',
+    imageUrl:
+      'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1000&q=80',
+    category: 'Fashion',
+    albumSlug: 'runway-after-dark',
+    location: 'Delhi',
+    camera: 'Nikon Z8',
+    lens: '35mm f/1.8',
+    description: 'Street editorial energy with motion and evening color.',
+    isFeatured: false,
   },
   {
     title: 'Rain Gloss',
@@ -153,7 +242,22 @@ const photos = [
     category: 'Editorial',
     albumSlug: 'monsoon-editorial',
     location: 'Kolkata',
+    camera: 'Canon EOS R6 Mark II',
+    lens: '35mm f/1.4',
+    description: 'Glossy rain textures for a monsoon fashion story.',
     isFeatured: true,
+  },
+  {
+    title: 'Umbrella Gesture',
+    imageUrl:
+      'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=1000&q=80',
+    category: 'Editorial',
+    albumSlug: 'monsoon-editorial',
+    location: 'Kolkata',
+    camera: 'Canon EOS R6 Mark II',
+    lens: '50mm f/1.2',
+    description: 'A poised editorial moment between rain showers.',
+    isFeatured: false,
   },
   {
     title: 'Quiet Coast',
@@ -162,7 +266,22 @@ const photos = [
     category: 'Travel',
     albumSlug: 'coastal-escape',
     location: 'Goa',
+    camera: 'Fujifilm X-T5',
+    lens: '23mm f/1.4',
+    description: 'Sunlit villa details from a coastal travel assignment.',
     isFeatured: false,
+  },
+  {
+    title: 'Palm Corridor',
+    imageUrl:
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80',
+    category: 'Travel',
+    albumSlug: 'coastal-escape',
+    location: 'Goa',
+    camera: 'Fujifilm X-T5',
+    lens: '16-55mm f/2.8',
+    description: 'A breezy beach path composed for retreat storytelling.',
+    isFeatured: true,
   },
   {
     title: 'Glass and Petals',
@@ -171,7 +290,22 @@ const photos = [
     category: 'Product',
     albumSlug: 'product-in-bloom',
     location: 'Bengaluru',
+    camera: 'Canon EOS R5',
+    lens: 'RF 100mm macro',
+    description: 'A botanical product flat lay with soft highlights.',
     isFeatured: true,
+  },
+  {
+    title: 'Serum Study',
+    imageUrl:
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1000&q=80',
+    category: 'Product',
+    albumSlug: 'product-in-bloom',
+    location: 'Bengaluru',
+    camera: 'Canon EOS R5',
+    lens: 'RF 100mm macro',
+    description: 'Minimal skincare styling with clean negative space.',
+    isFeatured: false,
   },
   {
     title: 'Applause Room',
@@ -180,7 +314,22 @@ const photos = [
     category: 'Event',
     albumSlug: 'launch-night',
     location: 'Pune',
+    camera: 'Sony A9 III',
+    lens: '24-70mm f/2.8',
+    description: 'An audience reaction captured during a premium launch.',
     isFeatured: false,
+  },
+  {
+    title: 'Champagne Detail',
+    imageUrl:
+      'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1000&q=80',
+    category: 'Event',
+    albumSlug: 'launch-night',
+    location: 'Pune',
+    camera: 'Sony A9 III',
+    lens: '35mm f/1.4',
+    description: 'Brand details and guest atmosphere in one frame.',
+    isFeatured: true,
   },
   {
     title: 'Ivory Suit',
@@ -189,7 +338,22 @@ const photos = [
     category: 'Fashion',
     albumSlug: 'quiet-luxury',
     location: 'Jaipur',
+    camera: 'Nikon Z8',
+    lens: '85mm f/1.8',
+    description: 'A tailored fashion portrait with restrained luxury.',
     isFeatured: true,
+  },
+  {
+    title: 'Stone Courtyard',
+    imageUrl:
+      'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1000&q=80',
+    category: 'Fashion',
+    albumSlug: 'quiet-luxury',
+    location: 'Jaipur',
+    camera: 'Nikon Z8',
+    lens: '50mm f/1.8',
+    description: 'Neutral tones and heritage stone for a quiet luxury edit.',
+    isFeatured: false,
   },
   {
     title: 'Legacy Smile',
@@ -198,7 +362,22 @@ const photos = [
     category: 'Portrait',
     albumSlug: 'family-heirloom',
     location: 'Chennai',
+    camera: 'Canon EOS R6 Mark II',
+    lens: 'RF 35mm f/1.8',
+    description: 'A relaxed family portrait built around closeness.',
     isFeatured: false,
+  },
+  {
+    title: 'Generations',
+    imageUrl:
+      'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1000&q=80',
+    category: 'Portrait',
+    albumSlug: 'family-heirloom',
+    location: 'Chennai',
+    camera: 'Canon EOS R6 Mark II',
+    lens: 'RF 24-70mm f/2.8',
+    description: 'Family connection photographed with gentle direction.',
+    isFeatured: true,
   },
   {
     title: 'Backstage Silk',
@@ -207,7 +386,118 @@ const photos = [
     category: 'Editorial',
     albumSlug: 'the-atelier',
     location: 'Hyderabad',
+    camera: 'Sony A7R V',
+    lens: '35mm f/1.4',
+    description: 'Behind-the-scenes movement from an atelier production.',
     isFeatured: true,
+  },
+  {
+    title: 'Pattern Table',
+    imageUrl:
+      'https://images.unsplash.com/photo-1509319117193-57bab727e09d?auto=format&fit=crop&w=1000&q=80',
+    category: 'Editorial',
+    albumSlug: 'the-atelier',
+    location: 'Hyderabad',
+    camera: 'Sony A7R V',
+    lens: '50mm f/1.4',
+    description: 'Textiles, sketches, and process details from the studio.',
+    isFeatured: false,
+  },
+  {
+    title: 'Palace Procession',
+    imageUrl:
+      'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1000&q=80',
+    category: 'Wedding',
+    albumSlug: 'heritage-frames',
+    location: 'Jodhpur',
+    camera: 'Canon EOS R5',
+    lens: 'RF 70-200mm f/2.8',
+    description: 'A grand wedding entry framed by historic architecture.',
+    isFeatured: true,
+  },
+  {
+    title: 'Henna Hands',
+    imageUrl:
+      'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=1000&q=80',
+    category: 'Wedding',
+    albumSlug: 'heritage-frames',
+    location: 'Jodhpur',
+    camera: 'Canon EOS R5',
+    lens: 'RF 100mm macro',
+    description: 'An intimate detail from a heritage wedding celebration.',
+    isFeatured: false,
+  },
+  {
+    title: 'Bloom Bottle',
+    imageUrl:
+      'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1000&q=80',
+    category: 'Product',
+    albumSlug: 'studio-botanica',
+    location: 'Ahmedabad',
+    camera: 'Fujifilm GFX 100S',
+    lens: 'GF 80mm f/1.7',
+    description: 'A fragrance hero frame surrounded by living greens.',
+    isFeatured: true,
+  },
+  {
+    title: 'Clay Jar',
+    imageUrl:
+      'https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=1000&q=80',
+    category: 'Product',
+    albumSlug: 'studio-botanica',
+    location: 'Ahmedabad',
+    camera: 'Fujifilm GFX 100S',
+    lens: 'GF 120mm macro',
+    description: 'Earthy cosmetic styling with tactile props.',
+    isFeatured: false,
+  },
+  {
+    title: 'Stage Wash',
+    imageUrl:
+      'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=80',
+    category: 'Event',
+    albumSlug: 'festival-lights',
+    location: 'Kochi',
+    camera: 'Sony A9 III',
+    lens: '70-200mm f/2.8',
+    description: 'Concert lighting and crowd energy at peak color.',
+    isFeatured: true,
+  },
+  {
+    title: 'Lantern Crowd',
+    imageUrl:
+      'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1000&q=80',
+    category: 'Event',
+    albumSlug: 'festival-lights',
+    location: 'Kochi',
+    camera: 'Sony A9 III',
+    lens: '24mm f/1.4',
+    description: 'Festival atmosphere with glowing lanterns and movement.',
+    isFeatured: false,
+  },
+  {
+    title: 'Pine Balcony',
+    imageUrl:
+      'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1000&q=80',
+    category: 'Travel',
+    albumSlug: 'mountain-retreat',
+    location: 'Manali',
+    camera: 'Fujifilm X-T5',
+    lens: '18mm f/1.4',
+    description: 'A quiet balcony view from a mountain retreat story.',
+    isFeatured: true,
+  },
+  {
+    title: 'Trail Breakfast',
+    imageUrl:
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80',
+    category: 'Travel',
+    albumSlug: 'mountain-retreat',
+    location: 'Manali',
+    camera: 'Fujifilm X-T5',
+    lens: '33mm f/1.4',
+    description: 'Lifestyle travel imagery with alpine air and morning light.',
+    isFeatured: false,
   },
 ]
 
@@ -302,11 +592,31 @@ const services = [
       'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=1200&q=80',
     features: ['Archival paper', 'Frame options', 'Color-managed proofing'],
   },
+  {
+    title: 'Retreat Brand Library',
+    description: 'Multi-day content libraries for boutique stays and retreats.',
+    price: 'From $2,800',
+    duration: '2 days',
+    image:
+      'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80',
+    features: ['Lifestyle scenes', 'Room details', 'Seasonal content bank'],
+  },
+  {
+    title: 'Campaign Retouching',
+    description: 'Advanced polish for selected campaign, portrait, and product frames.',
+    price: 'From $90/image',
+    duration: '3-7 days',
+    image:
+      'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1200&q=80',
+    features: ['Skin cleanup', 'Color consistency', 'Delivery-ready exports'],
+  },
 ]
 
 const testimonials = [
   {
     clientName: 'Aarav and Meera',
+    clientImage:
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
     review:
       'Fashion-Photos made our wedding look like memory and cinema at the same time.',
     rating: 5,
@@ -314,6 +624,8 @@ const testimonials = [
   },
   {
     clientName: 'Nyla Studio',
+    clientImage:
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
     review:
       'Every frame felt intentional. The gallery elevated our campaign instantly.',
     rating: 5,
@@ -321,6 +633,8 @@ const testimonials = [
   },
   {
     clientName: 'Mira Home',
+    clientImage:
+      'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80',
     review:
       'The product images felt refined, warm, and ready for every platform we use.',
     rating: 5,
@@ -328,8 +642,52 @@ const testimonials = [
   },
   {
     clientName: 'Kavya Retreats',
+    clientImage:
+      'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
     review:
       'Our travel story finally had the atmosphere and polish we wanted guests to feel.',
+    rating: 5,
+    projectType: 'Travel',
+  },
+  {
+    clientName: 'Rhea Kapoor',
+    review:
+      'The portrait session felt calm, precise, and beautifully directed from start to finish.',
+    rating: 5,
+    projectType: 'Portrait',
+  },
+  {
+    clientName: 'Aranya Botanics',
+    review:
+      'Our skincare launch needed warmth and clarity. The final images gave us both.',
+    rating: 5,
+    projectType: 'Product',
+  },
+  {
+    clientName: 'The Blue Hall',
+    review:
+      'The event photos captured guests, design, and tiny brand details without feeling staged.',
+    rating: 5,
+    projectType: 'Event',
+  },
+  {
+    clientName: 'Ishaan and Tara',
+    review:
+      'They preserved the quiet moments of our ceremony as carefully as the grand ones.',
+    rating: 5,
+    projectType: 'Wedding',
+  },
+  {
+    clientName: 'Mosaic Label',
+    review:
+      'The editorial direction made our collection feel cohesive, premium, and alive.',
+    rating: 5,
+    projectType: 'Fashion',
+  },
+  {
+    clientName: 'Hillhouse Stays',
+    review:
+      'The retreat gallery made the property feel peaceful, textured, and genuinely inviting.',
     rating: 5,
     projectType: 'Travel',
   },
@@ -445,6 +803,28 @@ const blogs = [
     category: 'Editorial',
     author: 'Fashion-Photos',
     createdAt: new Date('2026-07-12'),
+  },
+  {
+    title: 'A Practical Guide to Event Detail Coverage',
+    slug: 'event-detail-coverage-guide',
+    thumbnail:
+      'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80',
+    content:
+      'Event details tell the client what they built, not only who attended. Photograph signage, table settings, product displays, lighting, and small guest interactions.\n\nThe best detail coverage is collected early, then refreshed once the room fills with energy. It gives the final gallery rhythm and commercial value.',
+    category: 'Event',
+    author: 'Fashion-Photos',
+    createdAt: new Date('2026-07-20'),
+  },
+  {
+    title: 'Creating a Brand Image Library',
+    slug: 'creating-brand-image-library',
+    thumbnail:
+      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1200&q=80',
+    content:
+      'A brand image library should cover more than hero shots. Include product, lifestyle, details, founder portraits, space, process, and seasonal variations.\n\nWhen planned well, one shoot can support websites, launch emails, ads, press kits, and months of social content without feeling repetitive.',
+    category: 'Branding',
+    author: 'Fashion-Photos',
+    createdAt: new Date('2026-07-28'),
   },
 ]
 

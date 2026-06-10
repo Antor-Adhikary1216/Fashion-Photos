@@ -83,4 +83,4 @@ Railway reads:
 - Bookings: public booking submission and admin booking management
 - Admin: protected dashboard stats
 
-Development email fallback logs verification/reset links when SMTP is not configured.
+Development email fallback logs verification/reset codes when SMTP is not configured.

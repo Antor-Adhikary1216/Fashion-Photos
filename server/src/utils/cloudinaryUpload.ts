@@ -1,6 +1,7 @@
 import type { UploadApiResponse } from 'cloudinary'
 
 import { cloudinary, ensureCloudinaryConfigured } from '../config/cloudinary'
+import { AppError } from './errors'
 
 export async function uploadImageBuffer(
   buffer: Buffer,
@@ -16,7 +17,12 @@ export async function uploadImageBuffer(
       },
       (error, result) => {
         if (error || !result) {
-          reject(error ?? new Error('Cloudinary upload failed'))
+          reject(
+            new AppError(
+              502,
+              'Image upload failed. Check the Cloudinary configuration.',
+            ),
+          )
           return
         }
 

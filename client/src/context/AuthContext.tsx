@@ -48,6 +48,7 @@ type AuthContextValue = {
   verifyMfaLogin: (payload: MfaLoginPayload) => Promise<void>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
+  updateProfile: (payload: FormData) => Promise<User>
 }
 
 type RegisterPayload = {
@@ -139,6 +140,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setStoredAccessToken(null)
         setAccessToken(null)
         setUser(null)
+      },
+      async updateProfile(payload) {
+        const response = await api.patch('/auth/me', payload, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        setUser(response.data.user)
+        return response.data.user
       },
       refreshUser,
     }),

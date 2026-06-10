@@ -8,6 +8,8 @@ export function serializeUser(user: UserDocument) {
     role: user.role,
     isEmailVerified: user.isEmailVerified,
     mfaEnabled: user.mfa.enabled,
+    profileImageUrl: user.profileImageUrl ?? null,
+    profileImageSource: user.profileImageSource ?? null,
     lastLoginAt: user.lastLoginAt?.toISOString(),
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
