@@ -6,22 +6,14 @@ type AuthLayoutProps = {
   title: string
   copy?: string
   sideTitle?: string
-  sideCopy?: string
   children: ReactNode
 }
-
-const authHighlights = [
-  ['30m', 'Secure email links'],
-  ['MFA', 'Optional account protection'],
-  ['JWT', 'Modern session flow'],
-]
 
 export function AuthLayout({
   eyebrow,
   title,
   copy = 'Access your account with secure email verification, protected sessions, and optional multi-factor authentication.',
   sideTitle = 'A polished client portal for every visual story.',
-  sideCopy = 'Manage bookings, galleries, and secure account access from a refined photography experience.',
   children,
 }: AuthLayoutProps) {
   return (
@@ -75,35 +67,6 @@ export function AuthLayout({
             >
               {sideTitle}
             </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.58, duration: 0.55 }}
-              className="mt-5 max-w-md text-sm leading-6 text-stone-300"
-            >
-              {sideCopy}
-            </motion.p>
-            <div className="mt-8 grid grid-cols-3 gap-3">
-              {authHighlights.map(([value, label], index) => (
-                <motion.div
-                  key={label}
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    delay: 0.72 + index * 0.08,
-                    duration: 0.45,
-                    ease: 'easeOut',
-                  }}
-                  whileHover={{ y: -4, borderColor: 'rgba(231,191,92,0.45)' }}
-                  className="rounded-2xl border border-white/10 bg-black/35 p-4"
-                >
-                  <p className="font-serif text-2xl text-gold-200">{value}</p>
-                  <p className="mt-1 text-xs leading-5 text-stone-400">
-                    {label}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
           </motion.div>
         </motion.aside>
 

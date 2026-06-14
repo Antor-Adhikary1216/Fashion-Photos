@@ -51,7 +51,6 @@ export function Register() {
       title="Join Fashion-Photos."
       copy="Create a verified account for protected galleries, booking updates, and secure dashboard access."
       sideTitle="Start with a secure account, then build the story."
-      sideCopy="Registration includes strong password rules, hashed credentials, and email verification before login."
     >
       <form onSubmit={handleSubmit} className="grid gap-5">
         <AuthTextInput

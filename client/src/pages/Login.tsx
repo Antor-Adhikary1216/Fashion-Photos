@@ -74,7 +74,6 @@ export function Login() {
       title="Welcome back."
       copy="Log in to manage shoots, protected galleries, bookings, and dashboard access."
       sideTitle="Step back into your photography workspace."
-      sideCopy="A cinematic sign-in flow with short-lived access tokens, refresh cookies, and MFA support for sensitive admin access."
     >
       <AuthSuccessPopup message={successMessage} />
       <form onSubmit={handleSubmit} className="grid gap-5">

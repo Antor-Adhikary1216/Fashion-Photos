@@ -1,7 +1,7 @@
 import { Link, NavLink } from 'react-router-dom'
-import { FiCamera, FiMenu } from 'react-icons/fi'
-import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { FiAlertTriangle, FiCamera, FiMenu } from 'react-icons/fi'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 
 import { useAuth } from '@/context/AuthContext'
 
@@ -17,6 +17,7 @@ const navItems = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const { user, logout } = useAuth()
   const userInitials = user ? getUserInitials(user.name) : ''
@@ -27,6 +28,7 @@ export function Navbar() {
     try {
       await logout()
       setIsOpen(false)
+      setIsLogoutConfirmOpen(false)
     } finally {
       setIsLoggingOut(false)
     }
@@ -101,7 +103,7 @@ export function Navbar() {
               </Link>
               <button
                 type="button"
-                onClick={() => void handleLogout()}
+                onClick={() => setIsLogoutConfirmOpen(true)}
                 disabled={isLoggingOut}
                 className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:border-gold-300 hover:text-gold-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
@@ -118,6 +120,12 @@ export function Navbar() {
           )}
         </div>
       </nav>
+      <LogoutConfirmDialog
+        isOpen={isLogoutConfirmOpen}
+        isLoading={isLoggingOut}
+        onCancel={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={() => void handleLogout()}
+      />
     </header>
   )
 }
@@ -171,5 +179,104 @@ function AnimatedNavLink({
         </motion.span>
       )}
     </NavLink>
+  )
+}
+
+function LogoutConfirmDialog({
+  isOpen,
+  isLoading,
+  onCancel,
+  onConfirm,
+}: {
+  isOpen: boolean
+  isLoading: boolean
+  onCancel: () => void
+  onConfirm: () => void
+}) {
+  useEffect(() => {
+    if (!isOpen || isLoading) {
+      return
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        onCancel()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isLoading, isOpen, onCancel])
+
+  function handleBackdropClick() {
+    if (!isLoading) {
+      onCancel()
+    }
+  }
+
+  return (
+    <AnimatePresence>
+      {isOpen ? (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={handleBackdropClick}
+        >
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="logout-confirm-title"
+            className="w-full max-w-md rounded-3xl border border-white/10 bg-neutral-950 p-6 text-white shadow-2xl shadow-black/60"
+            initial={{ opacity: 0, y: 18, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.98 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start gap-4">
+              <span className="mt-1 rounded-full border border-gold-300/30 bg-gold-300/10 p-3 text-gold-200">
+                <FiAlertTriangle aria-hidden="true" />
+              </span>
+              <div>
+                <h2
+                  id="logout-confirm-title"
+                  className="font-serif text-2xl text-white"
+                >
+                  Log out?
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-stone-300">
+                  Are you sure you want to log out of your Fashion-Photos
+                  account?
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={onCancel}
+                disabled={isLoading}
+                autoFocus
+                className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold text-white transition hover:border-white/35 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={onConfirm}
+                disabled={isLoading}
+                className="rounded-full bg-gold-400 px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-gold-300 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isLoading ? 'Logging out...' : 'Logout'}
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   )
 }
