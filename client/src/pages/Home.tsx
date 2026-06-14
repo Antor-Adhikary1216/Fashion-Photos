@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 
 import { AlbumCard } from '@/components/AlbumCard'
@@ -65,12 +64,7 @@ export function Home() {
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/45 to-black" />
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 mx-auto max-w-5xl text-center"
-        >
+        <div className="relative z-10 mx-auto max-w-5xl text-center">
           <p className="text-sm uppercase tracking-[0.45em] text-gold-200">
             Luxury Photography Portfolio
           </p>
@@ -95,7 +89,7 @@ export function Home() {
               Book a Shoot
             </Link>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       <Section

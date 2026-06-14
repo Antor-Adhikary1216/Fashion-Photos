@@ -1,6 +1,5 @@
 import { Link, NavLink } from 'react-router-dom'
 import { FiAlertTriangle, FiCamera, FiMenu } from 'react-icons/fi'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 
 import { useAuth } from '@/context/AuthContext'
@@ -153,16 +152,13 @@ function AnimatedNavLink({
   return (
     <NavLink to={to} end={to === '/'} onClick={onClick}>
       {({ isActive }) => (
-        <motion.span
-          whileHover={{ y: -2 }}
-          whileTap={{ scale: 0.96, y: 0 }}
-          transition={{ type: 'spring', stiffness: 520, damping: 32 }}
+        <span
           className={`group relative isolate block px-1 py-3 text-sm transition-colors ${
             isActive ? 'text-white' : 'text-stone-400 hover:text-white'
           }`}
           aria-label={isActive ? `${children}, current page` : children}
         >
-          <motion.span
+          <span
             className="absolute inset-x-[-0.65rem] inset-y-1 -z-10 rounded-full bg-white/[0.04] opacity-0 blur-sm transition-opacity group-hover:opacity-100"
             aria-hidden="true"
           />
@@ -170,13 +166,11 @@ function AnimatedNavLink({
             <span>{children}</span>
           </span>
           {isActive ? (
-            <motion.span
-              layoutId="active-nav-underline"
+            <span
               className="absolute bottom-1 left-0 right-0 h-px rounded-full bg-gradient-to-r from-transparent via-gold-300 to-transparent shadow-[0_0_18px_rgba(231,191,92,0.75)]"
-              transition={{ type: 'spring', stiffness: 520, damping: 36 }}
             />
           ) : null}
-        </motion.span>
+        </span>
       )}
     </NavLink>
   )
@@ -218,24 +212,17 @@ function LogoutConfirmDialog({
   }
 
   return (
-    <AnimatePresence>
+    <>
       {isOpen ? (
-        <motion.div
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
           onClick={handleBackdropClick}
         >
-          <motion.div
+          <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="logout-confirm-title"
             className="w-full max-w-md rounded-3xl border border-white/10 bg-neutral-950 p-6 text-white shadow-2xl shadow-black/60"
-            initial={{ opacity: 0, y: 18, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start gap-4">
@@ -274,9 +261,9 @@ function LogoutConfirmDialog({
                 {isLoading ? 'Logging out...' : 'Logout'}
               </button>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       ) : null}
-    </AnimatePresence>
+    </>
   )
 }
