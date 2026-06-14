@@ -3,8 +3,8 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { FiLock, FiMail, FiUser } from 'react-icons/fi'
 
 import { getErrorMessages } from '@/api/http'
+import { AuthEntryLayout } from '@/components/auth/AuthEntryLayout'
 import { AuthFeedback } from '@/components/auth/AuthFeedback'
-import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthSubmitButton } from '@/components/auth/AuthSubmitButton'
 import { AuthTextInput } from '@/components/auth/AuthTextInput'
 import { PasswordInput } from '@/components/PasswordInput'
@@ -46,19 +46,20 @@ export function Register() {
   }
 
   return (
-    <AuthLayout
-      eyebrow="Create Account"
+    <AuthEntryLayout
+      eyebrow="Create Client Access"
       title="Join Fashion-Photos."
-      copy="Create a verified account for protected galleries, booking updates, and secure dashboard access."
-      sideTitle="Start with a secure account, then build the story."
+      copy="Create your verified client account for gallery access, booking updates, and private studio notes."
+      sideTitle="Begin your next visual story with a refined client account."
     >
-      <form onSubmit={handleSubmit} className="grid gap-5">
+      <form onSubmit={handleSubmit} className="grid gap-4 sm:gap-5">
         <AuthTextInput
           name="name"
           label="Full name"
           placeholder="Your name"
           icon={<FiUser />}
           autoComplete="name"
+          variant="entry"
           required
         />
         <AuthTextInput
@@ -68,6 +69,7 @@ export function Register() {
           placeholder="you@example.com"
           icon={<FiMail />}
           autoComplete="email"
+          variant="entry"
           required
         />
         <PasswordInput
@@ -76,6 +78,7 @@ export function Register() {
           placeholder="Password"
           autoComplete="new-password"
           icon={<FiLock />}
+          variant="entry"
           required
         />
         <PasswordInput
@@ -84,9 +87,10 @@ export function Register() {
           placeholder="Confirm password"
           autoComplete="new-password"
           icon={<FiLock />}
+          variant="entry"
           required
         />
-        <p className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs leading-5 text-stone-400">
+        <p className="rounded-2xl border border-gold-300/15 bg-gold-300/[0.06] px-4 py-3 text-xs leading-5 text-gold-100/85">
           Passwords need 8 characters with uppercase, lowercase, number, and
           special character.
         </p>
@@ -103,16 +107,19 @@ export function Register() {
             )}
           </AuthFeedback>
         ) : null}
-        <AuthSubmitButton disabled={isSubmitting}>
+        <AuthSubmitButton variant="entry" disabled={isSubmitting}>
           {isSubmitting ? 'Creating account...' : 'Register'}
         </AuthSubmitButton>
       </form>
-      <p className="mt-6 text-sm text-stone-400">
+      <p className="mt-6 border-t border-white/10 pt-5 text-sm text-stone-400">
         Already registered?{' '}
-        <Link to={loginPath} className="text-gold-300">
+        <Link
+          to={loginPath}
+          className="font-medium text-gold-200 underline-offset-4 transition hover:text-gold-100 hover:underline"
+        >
           Login
         </Link>
       </p>
-    </AuthLayout>
+    </AuthEntryLayout>
   )
 }
