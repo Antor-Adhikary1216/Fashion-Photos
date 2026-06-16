@@ -2,18 +2,26 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { FiCamera, FiCheckCircle } from 'react-icons/fi'
 
-const welcomeStorageKey = 'fashion_photos_welcome_seen'
+import { useAuth } from '@/context/AuthContext'
+
+const welcomeStorageKey = 'fashion_photos_login_welcome_seen'
 
 export function WelcomePopup() {
+  const { user, isLoading } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
+    if (isLoading || !user) {
+      setIsOpen(false)
+      return
+    }
+
     try {
       setIsOpen(localStorage.getItem(welcomeStorageKey) !== 'true')
     } catch {
       setIsOpen(true)
     }
-  }, [])
+  }, [isLoading, user])
 
   function handleClose() {
     try {
