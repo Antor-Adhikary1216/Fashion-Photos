@@ -22,5 +22,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["server/src/**/*.ts"]
+  "include": ["server/src/**/*.ts", "api/**/*.ts"]
 }

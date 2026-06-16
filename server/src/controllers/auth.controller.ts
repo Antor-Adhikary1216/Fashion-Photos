@@ -431,15 +431,11 @@ export async function forgotPassword(req: Request, res: Response) {
   )
 
   if (user) {
-    const resetEmail = await issuePasswordResetCode(user, 'forgot-password')
+    await issuePasswordResetCode(user, 'forgot-password')
 
     res.status(200).json({
       message:
         'If that email exists, a password reset code has been sent.',
-      devResetCode:
-        env.NODE_ENV !== 'production' && !resetEmail.delivered
-          ? resetEmail.code
-          : undefined,
     })
     return
   }

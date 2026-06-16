@@ -16,14 +16,12 @@ export function ForgotPassword() {
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [message, setMessage] = useState<string | null>(null)
-  const [devCode, setDevCode] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleRequestCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setMessage(null)
-    setDevCode(null)
     setError(null)
     setIsSubmitting(true)
 
@@ -37,7 +35,6 @@ export function ForgotPassword() {
       setEmail(nextEmail)
       setCode('')
       setMessage(response.data.message)
-      setDevCode(response.data.devResetCode ?? null)
       setStep('code')
     } catch (forgotError) {
       setError(getErrorMessage(forgotError))
@@ -85,7 +82,6 @@ export function ForgotPassword() {
         confirmPassword: formData.get('confirmPassword'),
       })
 
-      setDevCode(null)
       setMessage(response.data.message ?? 'Password reset successfully.')
       setStep('success')
       event.currentTarget.reset()
@@ -101,7 +97,6 @@ export function ForgotPassword() {
     setEmail('')
     setCode('')
     setMessage(null)
-    setDevCode(null)
     setError(null)
   }
 
@@ -152,14 +147,6 @@ export function ForgotPassword() {
             required
           />
           {message ? <AuthFeedback type="info">{message}</AuthFeedback> : null}
-          {devCode ? (
-            <AuthFeedback type="info">
-              Development reset code:{' '}
-              <span className="font-semibold tracking-[0.3em] text-gold-200">
-                {devCode}
-              </span>
-            </AuthFeedback>
-          ) : null}
           {error ? <AuthFeedback type="error">{error}</AuthFeedback> : null}
           <AuthSubmitButton disabled={isSubmitting}>
             {isSubmitting ? 'Verifying...' : 'Verify code'}

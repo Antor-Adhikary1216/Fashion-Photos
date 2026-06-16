@@ -4,10 +4,11 @@ import { fileURLToPath } from 'node:url'
 
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
-import express from 'express'
+import express, { type RequestHandler } from 'express'
 import helmet from 'helmet'
 
 import { env } from './config/env'
+import { getDatabaseStatus } from './config/database'
 import {
   errorHandler,
   notFoundHandler,
@@ -74,17 +75,36 @@ app.use(sanitizeBody)
 app.use('/api', apiLimiter)
 
 app.get('/api/health', (_req, res) => {
-  res.status(200).json({ status: 'ok' })
+  const database = getDatabaseStatus()
+
+  res.status(200).json({
+    status: database.status === 'connected' ? 'ok' : 'degraded',
+    database,
+  })
 })
 
-app.use('/api/auth', authRouter)
-app.use('/api/photos', photoRouter)
-app.use('/api/albums', albumRouter)
-app.use('/api/bookings', bookingRouter)
-app.use('/api/services', serviceRouter)
-app.use('/api/testimonials', testimonialRouter)
-app.use('/api/blogs', blogRouter)
-app.use('/api/admin', dashboardRouter)
+const requireDatabase: RequestHandler = (_req, res, next) => {
+  const database = getDatabaseStatus()
+
+  if (database.status !== 'connected') {
+    res.status(503).json({
+      message: 'Database connection unavailable. Try again after MongoDB connects.',
+      database,
+    })
+    return
+  }
+
+  next()
+}
+
+app.use('/api/auth', requireDatabase, authRouter)
+app.use('/api/photos', requireDatabase, photoRouter)
+app.use('/api/albums', requireDatabase, albumRouter)
+app.use('/api/bookings', requireDatabase, bookingRouter)
+app.use('/api/services', requireDatabase, serviceRouter)
+app.use('/api/testimonials', requireDatabase, testimonialRouter)
+app.use('/api/blogs', requireDatabase, blogRouter)
+app.use('/api/admin', requireDatabase, dashboardRouter)
 
 if (env.NODE_ENV === 'production' && existsSync(clientDistPath)) {
   app.use(express.static(clientDistPath))

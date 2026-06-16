@@ -14,8 +14,16 @@ const railwayExternalUrl = process.env.RAILWAY_PUBLIC_DOMAIN
   ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
   : undefined
 const renderExternalUrl = emptyStringToUndefined(process.env.RENDER_EXTERNAL_URL)
+const vercelDomain = emptyStringToUndefined(
+  process.env.VERCEL_ENV === 'production'
+    ? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL
+    : process.env.VERCEL_URL ??
+        process.env.VERCEL_BRANCH_URL ??
+        process.env.VERCEL_PROJECT_PRODUCTION_URL,
+)
+const vercelExternalUrl = vercelDomain ? `https://${vercelDomain}` : undefined
 const hostingExternalUrl = emptyStringToUndefined(
-  renderExternalUrl ?? railwayExternalUrl,
+  renderExternalUrl ?? railwayExternalUrl ?? vercelExternalUrl,
 )
 
 const envSchema = z.object({
