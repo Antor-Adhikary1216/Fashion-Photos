@@ -1,5 +1,5 @@
 import { Link, NavLink } from 'react-router-dom'
-import { FiAlertTriangle, FiCamera, FiMenu } from 'react-icons/fi'
+import { FiAlertTriangle, FiCamera, FiLogIn, FiMenu } from 'react-icons/fi'
 import { useEffect, useState } from 'react'
 
 import { useAuth } from '@/context/AuthContext'
@@ -112,9 +112,10 @@ export function Navbar() {
           ) : (
             <Link
               to="/login"
-              className="mt-3 block rounded-full bg-gold-400 px-5 py-2 text-center text-sm font-semibold text-black lg:mt-0"
+              className="mt-3 inline-flex items-center justify-center gap-2 rounded-full border border-rose-200/55 bg-gradient-to-r from-rose-500 via-fuchsia-500 to-amber-300 px-5 py-2.5 text-center text-sm font-bold text-white shadow-[0_12px_30px_rgba(244,63,94,0.28)] transition hover:-translate-y-0.5 hover:border-white/80 hover:shadow-[0_16px_36px_rgba(244,63,94,0.36)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-200 lg:mt-0"
             >
-              Login
+              <FiLogIn aria-hidden="true" />
+              <span>Login</span>
             </Link>
           )}
         </div>
