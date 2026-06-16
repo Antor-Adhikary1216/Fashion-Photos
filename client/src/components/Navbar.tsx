@@ -14,11 +14,15 @@ const navItems = [
   ['Book', '/contact'],
 ] as const
 
+const publicNavItems = [navItems[0]]
+
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const { user, logout } = useAuth()
+  const { user, logout, isLoading } = useAuth()
+  const isAuthenticated = Boolean(user) && !isLoading
+  const visibleNavItems = isAuthenticated ? navItems : publicNavItems
   const userInitials = user ? getUserInitials(user.name) : ''
 
   async function handleLogout() {
@@ -64,7 +68,7 @@ export function Navbar() {
             isOpen ? 'block' : 'hidden lg:flex'
           }`}
         >
-          {navItems.map(([label, path]) => (
+          {visibleNavItems.map(([label, path]) => (
             <AnimatedNavLink
               key={path}
               to={path}
@@ -73,7 +77,7 @@ export function Navbar() {
               {label}
             </AnimatedNavLink>
           ))}
-          {user?.role === 'admin' ? (
+          {isAuthenticated && user?.role === 'admin' ? (
             <AnimatedNavLink
               to="/dashboard"
               onClick={() => setIsOpen(false)}
@@ -81,7 +85,7 @@ export function Navbar() {
               Dashboard
             </AnimatedNavLink>
           ) : null}
-          {user ? (
+          {isAuthenticated && user ? (
             <div className="mt-3 flex items-center gap-2 border-t border-white/10 pt-3 lg:mt-0 lg:border-0 lg:pt-0">
               <Link
                 to="/account"

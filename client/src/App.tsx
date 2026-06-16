@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Navbar } from '@/components/Navbar'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { WelcomePopup } from '@/components/WelcomePopup'
 
 const AccountSettings = lazy(() =>
   import('@/pages/AccountSettings').then((module) => ({
@@ -130,6 +131,7 @@ export function App() {
   return (
     <div className="flex min-h-screen flex-col bg-black text-stone-100">
       <Navbar />
+      <WelcomePopup />
       <div className="flex-1">
         <Suspense fallback={<RouteLoadingFallback />}>
           <Routes>
